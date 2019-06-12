@@ -9,7 +9,7 @@ services:
   parse:
     image: 'parseplatform/parse-server:latest'
     volumes:
-    - './cloud:/data/cloud'
+      - './cloud:/data/cloud'
     environment:
       - PARSE_SERVER_APPLICATION_ID=parse
       - PARSE_SERVER_MASTER_KEY=parse@master123!
