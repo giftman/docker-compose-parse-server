@@ -29,7 +29,7 @@ services:
       - PARSE_DASHBOARD_SERVER_URL=/api
       - PARSE_DASHBOARD_MASTER_KEY=parse@master123!
       - PARSE_DASHBOARD_APP_ID=parse
-      - PARSE_DASHBOARD_APP_NAME=MyParseApp
+      - PARSE_DASHBOARD_APP_NAME=ygz
       - PARSE_DASHBOARD_USER_ID=admin
       - PARSE_DASHBOARD_USER_PASSWORD=pwd@admin123!
       - MOUNT_PATH=/dashboard/
