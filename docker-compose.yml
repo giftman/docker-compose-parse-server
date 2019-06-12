@@ -15,7 +15,7 @@ services:
       - PARSE_SERVER_MASTER_KEY=parse@master123!
       - PARSE_SERVER_DATABASE_URI=mongodb://mongo:27017/parse
       - PARSE_SERVER_MOUNT_PATH=/parse
-      - PARSE_SERVER_CLOUD=/data/cloud
+      - PARSE_SERVER_CLOUD=/data/cloud/main.js
     ports:
       - '1337:1337'
     links:
