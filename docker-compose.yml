@@ -50,6 +50,7 @@ services:
       - '443:443'
     volumes:
       - './nginx:/etc/nginx/sites-enabled'
+      - './www:/data/www'
       - './nginx/default.conf:/etc/nginx/conf.d/default.conf'
       # letsencrypt will put generated pems under /etc/letsencrypt/live/yourdomain.com, copy them to nginx container. 
       # - '/etc/letsencrypt/live/yourdomain.com/fullchain.pem:/etc/nginx/ssl/fullchain.pem'
