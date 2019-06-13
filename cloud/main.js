@@ -1,5 +1,8 @@
 Parse.Cloud.define('hello', function(req, res) {
-  res.success('Hi, git');
+  return {
+		"code": 200,
+		"message": "hello man"
+	}
 });
 
 Parse.Cloud.define("averageStars", async (request) => {
