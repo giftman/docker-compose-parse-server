@@ -25,7 +25,7 @@ Parse.Cloud.define("averageStars", async (req,res) => {
 		var objs = await query.find({useMasterKey: true});
 
 		objs[0].set('name',req.params.name)
-		await objs[0].save({useMasterKey: true})
+		await objs[0].save(null,{useMasterKey:true})
 	} catch(e) {
 		return e.message
 	}
