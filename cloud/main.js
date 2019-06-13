@@ -6,7 +6,7 @@ Parse.Cloud.define('hello', function(req, res) {
 });
 
 
-Parse.Cloud.define("averageStars", async (request) => {
+Parse.Cloud.define("averageStars", async (req,res) => {
    let userId = req.params.id
 		// sessionToken = req.user.get("sessionToken");
 	// if(!userId || !sessionToken) return {
