@@ -16,6 +16,7 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 
 	let query = new Parse.Query(Parse.User);
 	query.equalTo("objectId", userId);
+	query.equalTo("parent", req.user);
 	query.limit(1);
 	try {
 		var objs = await query.find({useMasterKey: true});
