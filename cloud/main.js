@@ -6,7 +6,7 @@ Parse.Cloud.define('hello', function(req, res) {
 });
 
 
-Parse.Cloud.define("averageStars", async (req,res) => {
+Parse.Cloud.define("updateUser", async (req,res) => {
    let userId = req.params.id
 		// sessionToken = req.user.get("sessionToken");
 	// if(!userId || !sessionToken) return {
@@ -23,9 +23,7 @@ Parse.Cloud.define("averageStars", async (req,res) => {
 	query.limit(1);
 	try {
 		var objs = await query.find({useMasterKey: true});
-
-		objs[0].set('name',req.params.name)
-		await objs[0].save(null,{useMasterKey:true})
+		await objs[0].save({...req.params},{useMasterKey:true})
 	} catch(e) {
 		return e.message
 	}
