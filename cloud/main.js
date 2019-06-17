@@ -87,10 +87,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		let reports = new Parse.Query(newReport);
 		reports.equalTo("parent", user);
 		reports.equalTo("month", cal.month);
-
-		reports.find().then(function(report){
-			console.log('get report list')
-			console.log(report)
+		let report = await reports.find({useMasterKey: true})
+		
 			if(report.length){
 				newReport = report[0]
 			}else{
@@ -104,8 +102,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	        // newReport.set('calIncome',calIncome)
 	        // newReport.set('month',month)
 	        // await objs[0].save({...req.params},{useMasterKey:true})
-			newReport.save({...cal},{useMasterKey:true}).then()
-		})
+	    console.log(cal)
+		await newReport.save({...cal},{useMasterKey:true})
 
 	} catch(e) {
 		return e.message
