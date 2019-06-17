@@ -29,6 +29,7 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 });
 
 Parse.Cloud.afterSave("Record", async (req) => {
+ console.log('afterSave + Record')
  var cal = {
 		// "parent":Parse.User.current(),
 		"uptimes":0,
@@ -70,7 +71,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	} catch(e) {
 		return e.message
 	}
-	return cal
+
+	console.log(cal)
 });
 
 function mssToHours(mss){
