@@ -68,12 +68,23 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.uphours= hours[0]
 		cal.calIncome= hours[1]
 		cal.month = getMonthTime()
+		console.log(cal)
 	} catch(e) {
 		return e.message
 	}
-
+	console.log(cal)
 	return cal
 });
+
+function getMonthTime(){
+	var now = new Date(); //当前日期
+// var nowDayOfWeek = now.getDay(); //今天本周的第几天
+// var nowDay = now.getDate(); //当前日
+var nowMonth = now.getMonth(); //当前月
+var nowYear = now.getFullYear(); //当前年
+
+return nowYear + "-" + nowMonth;
+}
 
 function mssToHours(mss){
 	var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
