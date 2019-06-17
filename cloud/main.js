@@ -76,8 +76,9 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	} catch(e) {
 		return e.message
 	}
+	console.log('end')
 	console.log(cal)
-	return cal
+	return 1
 });
 
 function getMonthTime(){
