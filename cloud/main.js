@@ -1,4 +1,5 @@
-import Report from './Report'
+
+import { Report } from './Report';
 
 Parse.Cloud.define('hello', function(req, res) {
   return {
@@ -85,7 +86,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		let reports = new Parse.Query(newReport);
 		reports.equalTo("parent", user);
 		reports.equalTo("month", cal.month);
-		
+
 		reports.find().then(function(report){
 			console.log('get report list')
 			console.log(report)
