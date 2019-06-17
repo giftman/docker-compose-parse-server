@@ -1,3 +1,5 @@
+import Report from './Report'
+
 Parse.Cloud.define('hello', function(req, res) {
   return {
 		"code": 200,
@@ -42,7 +44,6 @@ Parse.Cloud.afterSave("Record", async (req) => {
   query.greaterThan("createdAt", getMonthStartDate());
   let uptimes = []
   let listByDay = {}
-  console.log(cal)
 
   try {
 		var results = await query.find({useMasterKey: true});
@@ -59,7 +60,6 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.uptimes = uptimes.length;
 		cal.downtimes = new Date().getDate()  - cal.uptimes
 		let sum = 0;
-		console.log(cal)
 
 		for(let k in  listByDay){
 			if(listByDay[k].length == 2){
@@ -72,13 +72,35 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.uphours= hours[0]
 		cal.calIncome= hours[1]
 		cal.month = getMonthTime()
-		console.log(cal)
+
+		console.log('before Save')
+		//save report 
+		const user = request.object.get("parent")
+		console.log(user)
+
+		//先这样存 决断下月的有没有，没有就新建一份
+		let newReport = new Report()
+		Parse.Object.registerSubclass('Report', Report);
+
+		let reports = new Parse.Query(newReport);
+		reports.equalTo("parent", user);
+		reports.equalTo("month", cal.month);
+		
+		reports.find().then(function(report){
+			console.log('get report list')
+			console.log(report)
+			if(report.length){
+				newReport = report[0]
+			}
+
+			newReport.spawn({...cal})
+			newReport.save().then()
+		})
+
 	} catch(e) {
 		return e.message
 	}
 	console.log('end')
-	console.log(cal)
-	return 1
 });
 
 function getMonthTime(){
