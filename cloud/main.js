@@ -45,7 +45,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
   console.log(cal)
 
   try {
-		var objs = await query.find({useMasterKey: true});
+		var results = await query.find({useMasterKey: true});
 		for (let i = 0; i < results.length; ++i) {
 				let record = results[i]
 				if(record.get('action')){
@@ -60,7 +60,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.downtimes = new Date().getDate()  - cal.uptimes
 		let sum = 0;
 		console.log(cal)
-		
+
 		for(let k in  listByDay){
 			if(listByDay[k].length == 2){
 				let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
