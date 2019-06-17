@@ -28,7 +28,7 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 	return 1
 });
 
-Parse.Cloud.afterSave("Record", (request) => {
+Parse.Cloud.afterSave("Record", async (req) => {
   const query = new Parse.Query("Record");
   query.greaterThan("createdAt", getMonthStartDate());
   try {
