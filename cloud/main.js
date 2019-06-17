@@ -1,6 +1,3 @@
-
-import { Report } from './Report';
-
 Parse.Cloud.define('hello', function(req, res) {
   return {
 		"code": 200,
@@ -80,8 +77,12 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		console.log(user)
 
 		//先这样存 决断下月的有没有，没有就新建一份
+		var Report = Parse.Object.extend("Report");
+
+		// Create a new instance of that class.
+		// var gameScore = new GameScore();
 		let newReport = new Report()
-		Parse.Object.registerSubclass('Report', Report);
+		// Parse.Object.registerSubclass('Report', Report);
 
 		let reports = new Parse.Query(newReport);
 		reports.equalTo("parent", user);
@@ -92,10 +93,18 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			console.log(report)
 			if(report.length){
 				newReport = report[0]
+			}else{
+				newReport.set('parent',user)
 			}
-
-			newReport.spawn({...cal})
-			newReport.save().then()
+			
+	        //考勤天数
+	        // newReport.set('uptimes',uptimes)
+	        // newReport.set('downtimes',downtimes)
+	        // newReport.set('uphours',uphours)
+	        // newReport.set('calIncome',calIncome)
+	        // newReport.set('month',month)
+	        // await objs[0].save({...req.params},{useMasterKey:true})
+			newReport.save({...cal},{useMasterKey:true}).then()
 		})
 
 	} catch(e) {
