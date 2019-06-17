@@ -72,7 +72,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		return e.message
 	}
 
-	console.log(cal)
+	return cal
 });
 
 function mssToHours(mss){
