@@ -42,6 +42,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
   query.greaterThan("createdAt", getMonthStartDate());
   let uptimes = []
   let listByDay = {}
+  console.log(cal)
+
   try {
 		var objs = await query.find({useMasterKey: true});
 		for (let i = 0; i < results.length; ++i) {
@@ -57,6 +59,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.uptimes = uptimes.length;
 		cal.downtimes = new Date().getDate()  - cal.uptimes
 		let sum = 0;
+		console.log(cal)
+		
 		for(let k in  listByDay){
 			if(listByDay[k].length == 2){
 				let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
