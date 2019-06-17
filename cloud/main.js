@@ -27,3 +27,27 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 	}
 	return 1
 });
+
+Parse.Cloud.afterSave("Record", (request) => {
+  const query = new Parse.Query("Record");
+  query.greaterThan("createdAt", getMonthStartDate());
+  try {
+		var objs = await query.find({useMasterKey: true});
+		console.log(objs)
+	} catch(e) {
+		return e.message
+	}
+	return 1
+});
+
+//获得本月的开端日期时间
+function getMonthStartDate(){
+	var now = new Date(); //当前日期
+// var nowDayOfWeek = now.getDay(); //今天本周的第几天
+// var nowDay = now.getDate(); //当前日
+var nowMonth = now.getMonth(); //当前月
+var nowYear = now.getYear(); //当前年
+
+var monthStartDate = new Date(nowYear, nowMonth, 1);
+return monthStartDate;
+}
