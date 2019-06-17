@@ -73,7 +73,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 
 		console.log('before Save')
 		//save report 
-		const user = request.object.get("parent")
+		const user = request.user
 		console.log(user)
 
 		//先这样存 决断下月的有没有，没有就新建一份
