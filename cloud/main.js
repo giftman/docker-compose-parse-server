@@ -29,16 +29,55 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 });
 
 Parse.Cloud.afterSave("Record", async (req) => {
+ var cal = {
+		// "parent":Parse.User.current(),
+		"uptimes":0,
+		"downtimes":0,
+		"uphours":0,
+		"month":"",
+		"calIncome":""
+  }
   const query = new Parse.Query("Record");
   query.greaterThan("createdAt", getMonthStartDate());
+  let uptimes = []
+  let listByDay = {}
   try {
 		var objs = await query.find({useMasterKey: true});
-		console.log(objs)
+		for (let i = 0; i < results.length; ++i) {
+				let record = results[i]
+				if(record.get('action')){
+					uptimes.push(record)
+				}
+					if(!listByDay[record.get('day')]){
+						listByDay[record.get('day')] = []
+					}
+					listByDay[record.get('day')].push(record)
+			}
+		cal.uptimes = uptimes.length;
+		cal.downtimes = new Date().getDate()  - cal.uptimes
+		let sum = 0;
+		for(let k in  listByDay){
+			if(listByDay[k].length == 2){
+				let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
+				sum = sum + time
+			}
+		}
+		// console.log(sum)
+		let hours = mssToHours(sum)
+		cal.uphours= hours[0]
+		cal.calIncome= hours[1]
+		cal.month = getMonthTime()
 	} catch(e) {
 		return e.message
 	}
-	return 1
+	return cal
 });
+
+function mssToHours(mss){
+	var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+	var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
+	return [hours + "小时" + minutes + "分钟",hours*60+minutes]
+}
 
 //获得本月的开端日期时间
 function getMonthStartDate(){
