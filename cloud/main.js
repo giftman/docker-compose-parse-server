@@ -112,7 +112,7 @@ async function getUsers(user){
 		let results = await getUsers(parentUser)
 		return [parentUser,...results]
 	}else{
-		return nil
+		return 0
 	}
 }
 
