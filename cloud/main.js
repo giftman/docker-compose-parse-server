@@ -76,8 +76,9 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		const user = req.user
 		console.log(user)
 		const job = user.get('job')
+		await job.fetch();
 		console.log(job)
-		console.log(job.id)
+		console.log(job.get('dincome'))
 
 		//先这样存 决断下月的有没有，没有就新建一份
 		var Report = Parse.Object.extend("Report");
@@ -87,9 +88,9 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		let reports = new Parse.Query(newReport);
 		reports.equalTo("parent", user);
 		reports.equalTo("month", cal.month);
-		let report = await reports.find({useMasterKey: true})
-			if(report.length){
-				newReport = report[0]
+		let report = await reports.first({useMasterKey: true})
+			if(report){
+				newReport = report
 			}else{
 				newReport.set('parent',user)
 			}
