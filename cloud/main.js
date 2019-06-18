@@ -110,7 +110,7 @@ async function getUsers(result,user){
 	if(user.get('parent')){
 		let parentUser = await user.get('parent').fetch()
 		result.push(parentUser)
-		return getUsers(result,parentUser)
+		return await getUsers(result,parentUser)
 	}else{
 		return result
 	}
