@@ -77,6 +77,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		console.log(user)
 		const job = user.get('job')
 		console.log(job)
+		console.log(job.get('dincome'))
 
 		//先这样存 决断下月的有没有，没有就新建一份
 		var Report = Parse.Object.extend("Report");
