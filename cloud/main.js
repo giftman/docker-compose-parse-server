@@ -75,7 +75,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		const job = user.get('job')
 		if(job){
 			await job.fetch();
-			cal.calIncome= uphours * job.get('dincome')/60
+			cal.calIncome= (uphours * job.get('dincome')/60).toFixed(2)
 		}
 		else
 		{
@@ -116,7 +116,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			}
 			//最后的管理员是取其余部分
 			if(!result.length){
-				rato = 1 - parseFloat(user.get('percentage') || 1)
+				rato = (100 - parseFloat(user.get('percentage') || 1)*100)/100
 			}
 			//营收 等于 岗位营收 * 多级分成 * 时间
 			let calRevenue = jobRevenue * rato * uphours
