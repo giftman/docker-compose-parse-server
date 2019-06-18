@@ -29,7 +29,6 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 });
 
 Parse.Cloud.afterSave("Record", async (req) => {
- console.log('afterSave + Record')
  var cal = {
 		// "parent":Parse.User.current(),
 		"uptimes":0,
@@ -47,6 +46,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		var results = await query.find({useMasterKey: true});
 		for (let i = 0; i < results.length; ++i) {
 				let record = results[i]
+				//上班打卡算一次，app是每天只给上班打一次卡
 				if(record.get('action')){
 					uptimes.push(record)
 				}
@@ -75,12 +75,11 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		//save report 
 		const user = req.user
 		console.log(user)
+		const job = user.get('job')
+		console.log(job)
 
 		//先这样存 决断下月的有没有，没有就新建一份
 		var Report = Parse.Object.extend("Report");
-
-		// Create a new instance of that class.
-		// var gameScore = new GameScore();
 		let newReport = new Report()
 		// Parse.Object.registerSubclass('Report', Report);
 
@@ -88,7 +87,6 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		reports.equalTo("parent", user);
 		reports.equalTo("month", cal.month);
 		let report = await reports.find({useMasterKey: true})
-		
 			if(report.length){
 				newReport = report[0]
 			}else{
@@ -104,6 +102,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	        // await objs[0].save({...req.params},{useMasterKey:true})
 	    console.log(cal)
 		await newReport.save({...cal},{useMasterKey:true})
+		//Todo 算revenue
 
 	} catch(e) {
 		return e.message
