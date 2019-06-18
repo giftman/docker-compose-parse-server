@@ -99,7 +99,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		let jobRevenue = job.get('revenue')
 		let result = []
 		result = getUsers(result,user)
-		console.log(users)
+		console.log(result)
 	} catch(e) {
 		console.log(e.message)
 	}
