@@ -97,8 +97,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		//Todo 算revenue
 		let revenue = 0;
 		let jobRevenue = job.get('revenue')
-
-		let users = getUsers(user)
+		let result = []
+		result = getUsers(result,user)
 		console.log(users)
 	} catch(e) {
 		console.log(e.message)
@@ -106,13 +106,13 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	console.log('end')
 });
 
-async function getUsers(user){
+async function getUsers(result,user){
 	if(user.get('parent')){
 		let parentUser = await user.get('parent').fetch()
-		let results = await getUsers(parentUser)
-		return [parentUser,...results]
+		result.push(parentUser)
+		return getUsers(result,parentUser)
 	}else{
-		return 0
+		return result
 	}
 }
 
