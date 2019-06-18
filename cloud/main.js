@@ -68,17 +68,14 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		console.log(sum)
 		let hours = mssToHours(sum)
 		cal.uphours= hours[0]
-		cal.calIncome= hours[1]
 		cal.month = getMonthTime()
 
-		console.log('before Save')
 		//save report 
 		const user = req.user
-		console.log(user)
 		const job = user.get('job')
 		await job.fetch();
-		console.log(job)
-		console.log(job.get('dincome'))
+		cal.calIncome= hours[1] * job.get('dincome')/60
+
 
 		//先这样存 决断下月的有没有，没有就新建一份
 		var Report = Parse.Object.extend("Report");
@@ -94,23 +91,29 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			}else{
 				newReport.set('parent',user)
 			}
-			
-	        //考勤天数
-	        // newReport.set('uptimes',uptimes)
-	        // newReport.set('downtimes',downtimes)
-	        // newReport.set('uphours',uphours)
-	        // newReport.set('calIncome',calIncome)
-	        // newReport.set('month',month)
-	        // await objs[0].save({...req.params},{useMasterKey:true})
+
 	    console.log(cal)
 		await newReport.save({...cal},{useMasterKey:true})
 		//Todo 算revenue
+		let revenue = 0;
+		let jobRevenue = job.get('revenue')
 
+		let users = getUsers(user)
+		console.log(users)
 	} catch(e) {
-		return e.message
+		console.log(e.message)
 	}
 	console.log('end')
 });
+
+async getUsers(user){
+	if(user.get('parent')){
+		let parentUser = await user.get('parent').fetch()
+		return [parentUser,...getUsers(parentUser)]
+	}else{
+		return nil
+	}
+}
 
 function getMonthTime(){
 	var now = new Date(); //当前日期
