@@ -73,8 +73,15 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		//save report 
 		const user = req.user
 		const job = user.get('job')
-		await job.fetch();
-		cal.calIncome= hours[1] * job.get('dincome')/60
+		if(job){
+			await job.fetch();
+			cal.calIncome= hours[1] * job.get('dincome')/60
+		}
+		else
+		{
+			cal.calIncome = '请管理员设置工作岗位'
+		}
+		
 
 
 		//先这样存 决断下月的有没有，没有就新建一份
