@@ -60,12 +60,12 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		let sum = 0;
 
 		for(let k in  listByDay){
-			if(listByDay[k].length == 2){
+			if(listByDay[k].length % 2 == 0){
 				let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
 				sum = sum + time
 			}
 		}
-		// console.log(sum)
+		console.log(sum)
 		let hours = mssToHours(sum)
 		cal.uphours= hours[0]
 		cal.calIncome= hours[1]
