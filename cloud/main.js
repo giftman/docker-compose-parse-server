@@ -103,15 +103,35 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		await newReport.save({...cal},{useMasterKey:true})
 		//Todo 算revenue
 		let revenue = 0;
-		let jobRevenue = job.get('revenue')
+		let jobRevenue = job.get('revenue') - job.get('cost')
 		let result = []
 		result = await getUsers(result,user)
 		console.log(result)
+
+		//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
+		while(result.length){
+			let _u = result.shift()
+			let rato = 1
+			for(var i = 0 ;i < result.length;i++){
+				rato = rato * result[i]
+			}
+			console.log(jobRevenue + '|' + rato)
+			console.log(_u)
+			let calRevenue = jobRevenue * rato
+			_u.set('revenue', calRevenue)
+			await _u.save(null,{useMasterKey:true})
+		}
 	} catch(e) {
 		console.log(e.message)
 	}
 	console.log('end')
 });
+
+function calRevenue(result){
+	let user = result.shift()
+
+}
+
 
 async function getUsers(result,user){
 	if(user.get('parent')){
