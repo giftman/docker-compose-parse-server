@@ -71,7 +71,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.month = getMonthTime()
 
 		//save report 
-		const user = req.user
+		let user = req.user
 		const job = user.get('job')
 		if(job){
 			await job.fetch();
