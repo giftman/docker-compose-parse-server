@@ -113,11 +113,12 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			let _u = result.shift()
 			let rato = 1
 			for(var i = 0 ;i < result.length;i++){
-				rato = rato * result[i]
+				rato = rato * parseFloat(result[i].get('percentage'))
 			}
 			console.log(jobRevenue + '|' + rato)
 			console.log(_u)
-			let calRevenue = jobRevenue * rato
+			//营收 等于 岗位营收 * 多级分成 * 时间
+			let calRevenue = jobRevenue * rato * cal.uphours
 			_u.set('revenue', calRevenue)
 			await _u.save(null,{useMasterKey:true})
 		}
