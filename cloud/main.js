@@ -107,6 +107,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 });
 
 async function getUsers(result,user){
+	console.log(user)
+	console.log(user.get('parent'))
 	if(user.get('parent')){
 		let parentUser = await user.get('parent').fetch()
 		result.push(parentUser)
