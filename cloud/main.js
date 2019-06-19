@@ -63,6 +63,7 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 				'timeString':'测试09:30',
 				'day':j+""
 			},{useMasterKey: true})
+			//怕服务器受不了加个延时
 			sleep(1000);
 			record = new Record()
 			record.set('parent',results[i])
