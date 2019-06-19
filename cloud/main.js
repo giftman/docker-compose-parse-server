@@ -28,6 +28,28 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 	return 1
 });
 
+Parse.Cloud.define("clearUser", async (req,res) => {
+   let userId = req.params.id
+
+	// sessionToken = req.user.get("sessionToken");
+	// if(!userId || !sessionToken) return {
+	// 	"message": "参数不齐"
+	// }
+
+	let query = new Parse.Query(Parse.User);
+	query.equalTo("objectId", userId);
+	query.equalTo("parent", req.user);
+	query.limit(1);
+	try {
+		var objs = await query.find({useMasterKey: true});
+		//Todo  管理员及创建者才可以继续修改 否则返回非法操作
+		await objs[0].save({...req.params},{useMasterKey:true})
+	} catch(e) {
+		return e.message
+	}
+	return 1
+});
+
 Parse.Cloud.afterSave("Record", async (req) => {
  var cal = {
 		// "parent":Parse.User.current(),
@@ -37,8 +59,12 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		"month":"",
 		"calIncome":0
   }
+  let user = req.object.get('parent').fetch()
+  console.log(req.object)
+  console.log(user)
   const query = new Parse.Query("Record");
   query.greaterThan("createdAt", getMonthStartDate());
+  query.equalTo("parent", user);
   let uptimes = []
   let listByDay = {}
 
@@ -70,7 +96,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		cal.month = getMonthTime()
 		let uphours = hours[1]
 		//save report 
-		let user = req.user
+		// let user = req.user
 		const job = user.get('job')
 		if(job){
 			await job.fetch();
