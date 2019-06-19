@@ -43,11 +43,32 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 Parse.Cloud.define("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
     allUser.greaterThan("idcard","50000")
+
+    var Record = Parse.Object.extend("Record");
+    var day = new Date().getDate()
+    var upString = new Date().getFullYear() +'/' +new Date().getMonth() + '/day 09:30:00' 
+    var downString = new Date().getFullYear() +'/' +new Date().getMonth() + '/day 18:30:00' 
 	// results has the list of users with a hometown team with a losing record
 	const results = await allUser.find({useMasterKey: true});
 	console.log(results.length)
 	for(var i=0;i < results.length;i++){
 		console.log(results[i].get('username'))
+		let record = new Record()
+		record.set('parent',results[i])
+		for(let i = 1;i <= day;i++){
+			await record.save({
+				'action':true,
+				'time':new Date(upString.replace('day',day)),
+				'timeString':'测试数据09:30'
+				'day':i
+			},{useMasterKey: true})
+			await record.save({
+				'action':false,
+				'time':new Date(downString.replace('day',day)),
+				'timeString':'测试数据18:30'
+				'day':i
+			},{useMasterKey: true})
+		}
 	}
 });
 
