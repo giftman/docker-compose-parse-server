@@ -50,22 +50,24 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
     var downString = new Date().getFullYear() +'/' +new Date().getMonth() + '/day 18:30:00' 
 	// results has the list of users with a hometown team with a losing record
 	const results = await allUser.find({useMasterKey: true});
-	console.log(results.length)
 	for(var i=0;i < results.length;i++){
 		console.log(results[i].get('username'))
-		let record = new Record()
-		record.set('parent',results[i])
 		for(let i = 1;i <= day;i++){
+			let record = new Record()
+			record.set('parent',results[i])
 			await record.save({
 				'action':true,
 				'time':new Date(upString.replace('day',day)),
-				'timeString':'测试数据09:30',
+				'timeString':'测试09:30',
 				'day':i+""
 			},{useMasterKey: true})
+
+			record = new Record()
+			record.set('parent',results[i])
 			await record.save({
 				'action':false,
 				'time':new Date(downString.replace('day',day)),
-				'timeString':'测试数据18:30',
+				'timeString':'测试18:30',
 				'day':i+""
 			},{useMasterKey: true})
 		}
@@ -81,110 +83,114 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		"month":"",
 		"calIncome":0
   }
-  let user = await req.object.get('parent').fetch()
-  console.log(req.object)
-  console.log(user)
-  const query = new Parse.Query("Record");
-  query.greaterThan("createdAt", getMonthStartDate());
-  query.equalTo("parent", user);
-  let uptimes = []
-  let listByDay = {}
+  if(!req.object.get('action')){
 
-  try {
-		var results = await query.find({useMasterKey: true});
-		for (let i = 0; i < results.length; ++i) {
-				let record = results[i]
-				//上班打卡算一次，app是每天只给上班打一次卡
-				if(record.get('action')){
-					uptimes.push(record)
-				}
-					if(!listByDay[record.get('day')]){
-						listByDay[record.get('day')] = []
+  
+	  let user = await req.object.get('parent').fetch()
+	  console.log(req.object)
+	  console.log(user)
+	  const query = new Parse.Query("Record");
+	  query.greaterThan("createdAt", getMonthStartDate());
+	  query.equalTo("parent", user);
+	  let uptimes = []
+	  let listByDay = {}
+
+	  try {
+			var results = await query.find({useMasterKey: true});
+			for (let i = 0; i < results.length; ++i) {
+					let record = results[i]
+					//上班打卡算一次，app是每天只给上班打一次卡
+					if(record.get('action')){
+						uptimes.push(record)
 					}
-					listByDay[record.get('day')].push(record)
+						if(!listByDay[record.get('day')]){
+							listByDay[record.get('day')] = []
+						}
+						listByDay[record.get('day')].push(record)
+				}
+			cal.uptimes = uptimes.length;
+			cal.downtimes = new Date().getDate()  - cal.uptimes
+			let sum = 0;
+
+			for(let k in  listByDay){
+				if(listByDay[k].length % 2 == 0){
+					let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
+					sum = sum + time
+				}
 			}
-		cal.uptimes = uptimes.length;
-		cal.downtimes = new Date().getDate()  - cal.uptimes
-		let sum = 0;
-
-		for(let k in  listByDay){
-			if(listByDay[k].length % 2 == 0){
-				let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
-				sum = sum + time
+			let hours = mssToHours(sum)
+			cal.uphours= hours[0]
+			cal.month = getMonthTime()
+			let uphours = hours[1]
+			//save report 
+			// let user = req.user
+			const job = user.get('job')
+			if(job){
+				await job.fetch();
+				cal.calIncome= uphours * job.get('dincome')/60
+				cal.calIncome = cal.calIncome.toFixed(2)
 			}
-		}
-		let hours = mssToHours(sum)
-		cal.uphours= hours[0]
-		cal.month = getMonthTime()
-		let uphours = hours[1]
-		//save report 
-		// let user = req.user
-		const job = user.get('job')
-		if(job){
-			await job.fetch();
-			cal.calIncome= uphours * job.get('dincome')/60
-			cal.calIncome = cal.calIncome.toFixed(2)
-		}
-		else
-		{
-			cal.calIncome = '请管理员设置工作岗位'
-		}
-		
-
-
-		//先这样存 决断下月的有没有，没有就新建一份
-		var Report = Parse.Object.extend("Report");
-		let newReport = new Report()
-		// Parse.Object.registerSubclass('Report', Report);
-
-		let reports = new Parse.Query(newReport);
-		reports.equalTo("parent", user);
-		reports.equalTo("month", cal.month);
-		let report = await reports.first({useMasterKey: true})
-			if(report){
-				newReport = report
-			}else{
-				newReport.set('parent',user)
+			else
+			{
+				cal.calIncome = '请管理员设置工作岗位'
 			}
-
-	    console.log(cal)
-		await newReport.save({...cal},{useMasterKey:true})
-		//Todo 算revenue
-		let jobRevenue = job.get('revenue')
-		let result = []
-		result = await getUsers(result,user)
-		console.log(result)
-
-		//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
-		while(result.length){
-			let _u = result.shift()
-			let rato = parseFloat(_u.get('percentage') || 1)
-			for(var i = 0 ;i < result.length;i++){
-				rato = rato * parseFloat(result[i].get('percentage') || 1)
-			}
-			//最后的管理员是取其余部分
-			if(!result.length){
-				rato = 1 - parseFloat(user.get('percentage') || 1)
-				rato = rato.toFixed(2)
-			}
-			//营收 等于 岗位营收 * 多级分成 * 时间
-			let calRevenue = jobRevenue * rato * uphours/60
-
-			console.log('revenue:' + jobRevenue + '|比率:' + rato + '|工作时长:' + uphours)
-			console.log('currentUser:')
-			console.log(_u)
-			console.log('calRevenue:')
-			console.log(calRevenue)
 			
-			let revenue = _u.get('revenue') || {}
-			revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
-			_u.set('revenue', revenue)
-			await _u.save(null,{useMasterKey:true})
-			user = _u
+
+
+			//先这样存 决断下月的有没有，没有就新建一份
+			var Report = Parse.Object.extend("Report");
+			let newReport = new Report()
+			// Parse.Object.registerSubclass('Report', Report);
+
+			let reports = new Parse.Query(newReport);
+			reports.equalTo("parent", user);
+			reports.equalTo("month", cal.month);
+			let report = await reports.first({useMasterKey: true})
+				if(report){
+					newReport = report
+				}else{
+					newReport.set('parent',user)
+				}
+
+		    console.log(cal)
+			await newReport.save({...cal},{useMasterKey:true})
+			//Todo 算revenue
+			let jobRevenue = job.get('revenue')
+			let result = []
+			result = await getUsers(result,user)
+			console.log(result)
+
+			//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
+			while(result.length){
+				let _u = result.shift()
+				let rato = parseFloat(_u.get('percentage') || 1)
+				for(var i = 0 ;i < result.length;i++){
+					rato = rato * parseFloat(result[i].get('percentage') || 1)
+				}
+				//最后的管理员是取其余部分
+				if(!result.length){
+					rato = 1 - parseFloat(user.get('percentage') || 1)
+					rato = rato.toFixed(2)
+				}
+				//营收 等于 岗位营收 * 多级分成 * 时间
+				let calRevenue = jobRevenue * rato * uphours/60
+
+				console.log('revenue:' + jobRevenue + '|比率:' + rato + '|工作时长:' + uphours)
+				console.log('currentUser:')
+				console.log(_u)
+				console.log('calRevenue:')
+				console.log(calRevenue)
+				
+				let revenue = _u.get('revenue') || {}
+				revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
+				_u.set('revenue', revenue)
+				await _u.save(null,{useMasterKey:true})
+				user = _u
+			}
+		} catch(e) {
+			console.log(e.message)
 		}
-	} catch(e) {
-		console.log(e.message)
-	}
+}
 	console.log('end')
 });
 
