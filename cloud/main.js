@@ -29,25 +29,22 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 });
 
 Parse.Cloud.define("clearUser", async (req,res) => {
-   let userId = req.params.id
-
-	// sessionToken = req.user.get("sessionToken");
-	// if(!userId || !sessionToken) return {
-	// 	"message": "参数不齐"
-	// }
-
-	let query = new Parse.Query(Parse.User);
-	query.equalTo("objectId", userId);
-	query.equalTo("parent", req.user);
-	query.limit(1);
-	try {
-		var objs = await query.find({useMasterKey: true});
-		//Todo  管理员及创建者才可以继续修改 否则返回非法操作
-		await objs[0].save({...req.params},{useMasterKey:true})
-	} catch(e) {
-		return e.message
+    var allUser = new Parse.Query(Parse.User);
+	// results has the list of users with a hometown team with a losing record
+	const results = await allUser.find({useMasterKey: true});
+	for(var i=0;i < results.length;i++){
+		if(results[i].get('name') != 'admin'){
+			await results[i].destroy()
+		}
 	}
-	return 1
+});
+
+Parse.Cloud.define("mockDcard", async (req,res) => {
+    var allUser = new Parse.Query(Parse.User);
+    allUser.greaterThan("idcard","50000")
+	// results has the list of users with a hometown team with a losing record
+	const results = await allUser.find({useMasterKey: true});
+	console.log(results.length)
 });
 
 Parse.Cloud.afterSave("Record", async (req) => {
@@ -146,9 +143,9 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				rato = rato.toFixed(2)
 			}
 			//营收 等于 岗位营收 * 多级分成 * 时间
-			let calRevenue = jobRevenue * rato * uphours
+			let calRevenue = jobRevenue * rato * uphours/60
 
-			console.log(jobRevenue + '|' + rato + '|' + uphours)
+			console.log('revenue:' + jobRevenue + '|比率:' + rato + '|工作时长:' + uphours)
 			console.log('currentUser:')
 			console.log(_u)
 			console.log('calRevenue:')
