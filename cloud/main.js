@@ -59,7 +59,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		"month":"",
 		"calIncome":0
   }
-  let user = req.object.get('parent').fetch()
+  let user = await req.object.get('parent').fetch()
   console.log(req.object)
   console.log(user)
   const query = new Parse.Query("Record");
