@@ -53,23 +53,25 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 	const results = await allUser.find({useMasterKey: true});
 	for(var i=0;i < results.length;i++){
 		console.log(results[i].get('username'))
-		for(let i = 1;i <= day;i++){
+		for(let j = 1;j <= day;j++){
 			let record = new Record()
 			record.set('parent',results[i])
 			await record.save({
+				'parent':results[i],
 				'action':true,
 				'time':new Date(upString.replace('day',day)),
 				'timeString':'测试09:30',
-				'day':i+""
+				'day':j+""
 			},{useMasterKey: true})
 			sleep(1000);
 			record = new Record()
 			record.set('parent',results[i])
 			await record.save({
 				'action':false,
+				'parent':results[i],
 				'time':new Date(downString.replace('day',day)),
 				'timeString':'测试18:30',
-				'day':i+""
+				'day':j+""
 			},{useMasterKey: true})
 		}
 	}
