@@ -32,6 +32,7 @@ Parse.Cloud.define("clearUser", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
 	// results has the list of users with a hometown team with a losing record
 	const results = await allUser.find({useMasterKey: true});
+	console.log(results.length)
 	for(var i=0;i < results.length;i++){
 		if(results[i].get('username') != 'admin'){
 			await results[i].destroy({useMasterKey: true})
