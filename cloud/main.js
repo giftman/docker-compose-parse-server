@@ -59,14 +59,14 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 			await record.save({
 				'action':true,
 				'time':new Date(upString.replace('day',day)),
-				'timeString':'测试数据09:30'
-				'day':i
+				'timeString':'测试数据09:30',
+				'day':i+""
 			},{useMasterKey: true})
 			await record.save({
 				'action':false,
 				'time':new Date(downString.replace('day',day)),
-				'timeString':'测试数据18:30'
-				'day':i
+				'timeString':'测试数据18:30',
+				'day':i+""
 			},{useMasterKey: true})
 		}
 	}
