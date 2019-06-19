@@ -61,7 +61,7 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 				'timeString':'测试09:30',
 				'day':i+""
 			},{useMasterKey: true})
-
+			sleep(1000);
 			record = new Record()
 			record.set('parent',results[i])
 			await record.save({
@@ -73,6 +73,13 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 		}
 	}
 });
+
+function sleep(delay) {
+  var start = (new Date()).getTime();
+  while ((new Date()).getTime() - start < delay) {
+    continue;
+  }
+}
 
 Parse.Cloud.afterSave("Record", async (req) => {
  var cal = {
