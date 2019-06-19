@@ -34,7 +34,7 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 	const results = await allUser.find({useMasterKey: true});
 	for(var i=0;i < results.length;i++){
 		if(results[i].get('name') != 'admin'){
-			await results[i].destroy()
+			await results[i].destroy({useMasterKey: true})
 		}
 	}
 });
