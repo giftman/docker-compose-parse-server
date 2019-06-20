@@ -172,17 +172,19 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			console.log(result)
 
 			//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
+			let xieyijifengcheng = 0;
 			while(result.length){
+				//中间级的收益需要把下家的分掉
 				let _u = result.shift()
 				let rato = parseFloat(_u.get('percentage') || 1)
 				for(var i = 0 ;i < result.length;i++){
 					rato = rato * parseFloat(result[i].get('percentage') || 1)
 				}
 				//最后的管理员是取其余部分
-				if(!result.length){
-					rato = 1 - parseFloat(user.get('percentage') || 1)
+				// if(!result.length){
+					rato = 1 - parseFloat(user.get('percentage') || 0)
 					rato = rato.toFixed(2)
-				}
+				// }
 				//营收 等于 岗位营收 * 多级分成 * 时间
 				let calRevenue = (jobRevenue * rato * uphours).toFixed(2)
 
@@ -212,7 +214,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
-				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.i}
+				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
 				newRevenue.set('list',revenue_list)
 				await newRevenue.save(null,{useMasterKey:true})
 
