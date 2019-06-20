@@ -181,14 +181,17 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					rato = rato * parseFloat(result[i].get('percentage') || 1)
 				}
 				//最后的管理员是取其余部分
-				// if(!result.length){
+				if(!result.length){
 					rato = 1 - parseFloat(user.get('percentage') || 0)
 					rato = rato.toFixed(2)
-				// }
+				}else{
+					rato = rato*(1 - parseFloat(user.get('percentage') || 0))
+					rato = rato.toFixed(2)
+				}
 				//营收 等于 岗位营收 * 多级分成 * 时间
 				let calRevenue = (jobRevenue * rato * uphours).toFixed(2)
 
-				console.log('revenue:' + jobRevenue + '|比率:' + rato + '|工作时长:' + uphours)
+				console.log('revenue:' + jobRevenue + '|rato:' + rato + '|uphours:' + uphours)
 				console.log('calRevenue:')
 				console.log(calRevenue)
 				
