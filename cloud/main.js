@@ -43,7 +43,7 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 Parse.Cloud.define("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
     allUser.greaterThan("idcard","50000")
-    // allUser.limit(1)
+    allUser.limit(2)
 
     var Record = Parse.Object.extend("Record");
     var day = new Date().getDate()
@@ -64,7 +64,7 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 				'day':j+""
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
-			sleep(1000);
+			sleep(200);
 			record = new Record()
 			record.set('parent',results[i])
 			await record.save({
