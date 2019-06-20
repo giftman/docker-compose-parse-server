@@ -220,7 +220,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				let revenue_list = newRevenue.get('list') || {}
 				let calData = {calRevenue,name:user.get('name'),id:user.id}
 				if(user.id = origin_user.id){
-					calData.uphours = cal.uphours
+					calData.uptimes = cal.uptimes
 				}
 				revenue_list[user.id] = calData
 				newRevenue.set('list',revenue_list)
