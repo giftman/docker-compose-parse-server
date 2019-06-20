@@ -96,7 +96,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 
   
 	  let user = await req.object.get('parent').fetch()
-	  let origin_user = user
+	  const origin_user_id = user.id
 	  const query = new Parse.Query("Record");
 	  query.greaterThan("createdAt", getMonthStartDate());
 	  query.equalTo("parent", user);
@@ -105,7 +105,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 
 	  try {
 			var results = await query.find({useMasterKey: true});
-			console.log('cal_work_hours' + results.length)
+			// console.log('cal_work_hours' + results.length)
 			for (let i = 0; i < results.length; i++) {
 					let record = results[i]
 					//上班打卡算一次，app是每天只给上班打一次卡
@@ -124,7 +124,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			for(let k in  listByDay){
 				if(listByDay[k].length % 2 == 0){
 					let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
-					console.log('cal_work_hours: add time|' + time)
+					// console.log('cal_work_hours: add time|' + time)
 					sum = sum + time
 				}
 			}
@@ -219,7 +219,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					}
 				let revenue_list = newRevenue.get('list') || {}
 				let calData = {calRevenue,name:user.get('name'),id:user.id}
-				if(user.id = origin_user.id){
+				if(user.id == origin_user_id){
 					calData.uptimes = cal.uptimes
 				}
 				revenue_list[user.id] = calData
