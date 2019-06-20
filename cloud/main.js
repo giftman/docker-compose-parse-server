@@ -43,7 +43,7 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 Parse.Cloud.define("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
     allUser.greaterThan("idcard","50000")
-    allUser.limit(2)
+    allUser.limit(1)
 
     var Record = Parse.Object.extend("Record");
     var day = new Date().getDate()
@@ -55,7 +55,6 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 		console.log(results[i].get('username'))
 		for(let j = 1;j <= day;j++){
 			let record = new Record()
-			record.set('parent',results[i])
 			await record.save({
 				'parent':results[i],
 				'action':true,
@@ -65,9 +64,8 @@ Parse.Cloud.define("mockDcard", async (req,res) => {
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
 			sleep(200);
-			record = new Record()
-			record.set('parent',results[i])
-			await record.save({
+			let record2 = new Record()
+			await record2.save({
 				'action':false,
 				'parent':results[i],
 				'time':new Date(downString.replace('day',day)),
@@ -110,7 +108,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			for (let i = 0; i < results.length; i++) {
 					let record = results[i]
 					//上班打卡算一次，app是每天只给上班打一次卡
-					if(record.get('action')){
+					if(record.get('action') == true){
 						uptimes.push(record)
 					}
 						if(!listByDay[record.get('day')]){
