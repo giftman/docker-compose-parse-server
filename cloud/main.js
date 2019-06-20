@@ -192,7 +192,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				
 
 				let revenue = _u.get('revenue') || {}
-				revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
+				revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
 				_u.set('revenue', revenue)
 				await _u.save(null,{useMasterKey:true})
 
@@ -208,14 +208,14 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					if(revenue_record){
 						newRevenue = revenue_record
 					}else{
-						newRevenue.set('parent',user)
+						newRevenue.set('parent',_u)
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
-				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
+				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.i}
 				newRevenue.set('list',revenue_list)
 				await newRevenue.save(null,{useMasterKey:true})
-				
+
 				user = _u
 			}
 		} catch(e) {
