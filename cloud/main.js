@@ -96,6 +96,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 
   
 	  let user = await req.object.get('parent').fetch()
+	  let origin_user = user
 	  const query = new Parse.Query("Record");
 	  query.greaterThan("createdAt", getMonthStartDate());
 	  query.equalTo("parent", user);
@@ -217,7 +218,11 @@ Parse.Cloud.afterSave("Record", async (req) => {
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
-				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
+				let calData = {calRevenue,name:user.get('name'),id:user.id}
+				if(user.id = origin_user.id){
+					calData.uphours = cal.uphours
+				}
+				revenue_list[user.id] = calData
 				newRevenue.set('list',revenue_list)
 				await newRevenue.save(null,{useMasterKey:true})
 
