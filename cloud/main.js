@@ -108,8 +108,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			for (let i = 0; i < results.length; i++) {
 					let record = results[i]
 					//上班打卡算一次，app是每天只给上班打一次卡
-					if(record.get('action') == true){
-						uptimes.push(record)
+					if(record.get('action')){
+						uptimes.push(1)
 					}
 						if(!listByDay[record.get('day')]){
 							listByDay[record.get('day')] = []
