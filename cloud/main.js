@@ -214,7 +214,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				let revenue_list = newRevenue.get('list') || {}
 				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
 				newRevenue.set('list',revenue_list)
-				await revenue_list.save(null,{useMasterKey:true})
+				await newRevenue.save(null,{useMasterKey:true})
 				
 				user = _u
 			}
