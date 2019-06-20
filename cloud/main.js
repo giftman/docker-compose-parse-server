@@ -132,13 +132,13 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			let hours = mssToHours(sum)
 			cal.uphours= hours[0]
 			cal.month = getMonthTime()
-			let uphours = hours[1]
+			let uphours = hours[1]/60
 			//save report 
 			// let user = req.user
 			const job = user.get('job')
 			if(job){
 				await job.fetch();
-				cal.calIncome= uphours * job.get('dincome')/60
+				cal.calIncome= uphours * job.get('dincome')
 				cal.calIncome = cal.calIncome.toFixed(2)
 			}
 			else
@@ -184,7 +184,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					rato = rato.toFixed(2)
 				}
 				//营收 等于 岗位营收 * 多级分成 * 时间
-				let calRevenue = jobRevenue * rato * uphours/60
+				let calRevenue = jobRevenue * rato * uphours
 
 				console.log('revenue:' + jobRevenue + '|比率:' + rato + '|工作时长:' + uphours)
 				console.log('calRevenue:')
@@ -230,7 +230,7 @@ return nowYear + "-" + nowMonth;
 }
 
 function mssToHours(mss){
-	var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+	var hours = parseInt((mss) / (1000 * 60 * 60));
 	var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
 	return [hours + "小时" + minutes + "分钟",hours*60+minutes]
 }
