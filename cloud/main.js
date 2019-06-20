@@ -184,16 +184,38 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					rato = rato.toFixed(2)
 				}
 				//营收 等于 岗位营收 * 多级分成 * 时间
-				let calRevenue = jobRevenue * rato * uphours
+				let calRevenue = (jobRevenue * rato * uphours).toFixed(2)
 
 				console.log('revenue:' + jobRevenue + '|比率:' + rato + '|工作时长:' + uphours)
 				console.log('calRevenue:')
 				console.log(calRevenue)
 				
+
 				let revenue = _u.get('revenue') || {}
 				revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
 				_u.set('revenue', revenue)
 				await _u.save(null,{useMasterKey:true})
+
+				//换成存Revenue
+				var Revenue = Parse.Object.extend("Revenue");
+				let newRevenue = new Revenue()
+				// Parse.Object.registerSubclass('Report', Report);
+
+				let revenue_query = new Parse.Query(newRevenue);
+				revenue_query.equalTo("parent", _u);
+				revenue_query.equalTo("month", cal.month);
+				let revenue_record = await revenue_query.first({useMasterKey: true})
+					if(revenue_record){
+						newRevenue = revenue_record
+					}else{
+						newRevenue.set('parent',user)
+						newRevenue.set('month',cal.month)
+					}
+				let revenue_list = newRevenue.get('list') || {}
+				revenue_list[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes}
+				newRevenue.set('list',revenue_list)
+				await revenue_list.save(null,{useMasterKey:true})
+				
 				user = _u
 			}
 		} catch(e) {
