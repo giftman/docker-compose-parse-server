@@ -40,41 +40,6 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 	}
 });
 
-Parse.Cloud.define("mockDcard", async (req,res) => {
-    var allUser = new Parse.Query(Parse.User);
-    allUser.greaterThan("idcard","50000")
-    // allUser.limit(1)
-
-    var Record = Parse.Object.extend("Record");
-    var day = new Date().getDate()
-    var upString = new Date().getFullYear() +'/' +new Date().getMonth() + '/day 09:30:00' 
-    var downString = new Date().getFullYear() +'/' +new Date().getMonth() + '/day 18:30:00' 
-	// results has the list of users with a hometown team with a losing record
-	const results = await allUser.find({useMasterKey: true});
-	for(var i=0;i < results.length;i++){
-		console.log(results[i].get('username'))
-		for(let j = 1;j <= day;j++){
-			let record = new Record()
-			await record.save({
-				'parent':results[i],
-				'action':true,
-				'time':new Date(upString.replace('day',day)),
-				'timeString':'测试09:30',
-				'day':j+""
-			},{useMasterKey: true})
-			//怕服务器受不了加个延时
-			sleep(50);
-			let record2 = new Record()
-			await record2.save({
-				'action':false,
-				'parent':results[i],
-				'time':new Date(downString.replace('day',day)),
-				'timeString':'测试18:30',
-				'day':j+""
-			},{useMasterKey: true})
-		}
-	}
-});
 
 Parse.Cloud.job("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
