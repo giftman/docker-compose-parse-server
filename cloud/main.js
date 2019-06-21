@@ -30,9 +30,10 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 
 Parse.Cloud.define("request", async (req,res) => {
 	var url = req.params.url
-   return await Parse.Cloud.httpRequest({
+   var result =  await Parse.Cloud.httpRequest({
 	  url: url
 	})
+   return result.text
 });
 
 Parse.Cloud.define("clearUser", async (req,res) => {
