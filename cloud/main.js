@@ -130,7 +130,7 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 		var _month = 0
 		var _workers = 0
 		var _list = results[i].get('list') || {}
-		_workers = Object.keys(_list)
+		_workers = Object.keys(_list).length
 		for(let k in _list){
 			// console.log(_list[k])
 			for (let l in _list[k]){
