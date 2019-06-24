@@ -96,17 +96,18 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 		console.log(results[i])
 
 		var _today = 0
-		var _leiji = results[i].get('total') - results[i].get('monthTotal')
+		var _leiji = 0
 		var _month = 0
 		var _workers = 0
 		var _list = results[i].get('list') || []
 		_workers = _list.length
 		for(let k in _list){
 			console.log(_list[k])
-			_month = _month + _list[k].calRevenue
-			_today = _today + _list[k].todayRevenue
+			_month = _month + parseFloat(_list[k].calRevenue)
+			_today = _today + parseFloat(_list[k].todayRevenue)
 		}
-		_leiji = _leiji + _month
+		_leiji = parseFloat(results[i].get('total'))|| 0
+		       - parseFloat(results[i].get('monthTotal'))||0 + _month
 
 		await results[i].save({total:_leiji,monthTotal:_month,today:_today,workers:_workers},{useMasterKey: true})
 	}
