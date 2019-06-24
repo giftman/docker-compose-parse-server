@@ -130,7 +130,7 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 		var _month = 0
 		var _workers = 0
 		var _list = results[i].get('list') || {}
-		_workers = 0
+		_workers = Object.keys(_list)
 		for(let k in _list){
 			// console.log(_list[k])
 			for (let l in _list[k]){
@@ -141,9 +141,16 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 			
 		}
 		//Todo累计是加上一个月的比较方便
-		_leiji = parseFloat(results[i].get('total'))|| 0
-		       - parseFloat(results[i].get('monthTotal'))||0 + _month
+		var lastMonth = new Parse.Query(Revenue)
+		lastMonth.equalTo('month', getMonthTime())
+		lastMonth.equalTo('parent', results[i].get('parent'))
+		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
+		if(lastMonthRevenue){
+			_leiji = (parseFloat(lastMonthRevenue.get('total'))|| 0)+ _month
 
+		}else{
+			_leiji = _month
+		}
 		await results[i].save({total:_leiji.toFixed(2),monthTotal:_month.toFixed(2),today:_today,workers:_workers},{useMasterKey: true})
 	}
 });
@@ -341,13 +348,19 @@ async function getUsers(result,user){
 	}
 }
 
-function getMonthTime(){
+function getMonthTime(lastMonth){
 	var now = new Date(); //当前日期
 // var nowDayOfWeek = now.getDay(); //今天本周的第几天
 // var nowDay = now.getDate(); //当前日
 var nowMonth = now.getMonth(); //当前月
+if(!lastMonth){
+	nowMonth = nowMonth + 1
+}
 var nowYear = now.getFullYear(); //当前年
-
+if(lastMonth && nowMonth == 0){
+	nowYear = nowYear - 1
+	nowMonth = 12
+}
 return nowYear + "-" + nowMonth;
 }
 
