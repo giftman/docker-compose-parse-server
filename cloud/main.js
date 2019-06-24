@@ -82,7 +82,7 @@ Parse.Cloud.job("clearTestData", async (req,res) => {
 Parse.Cloud.job("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
     allUser.greaterThan("idcard","50000")
-    // allUser.limit(1)
+    allUser.limit(2)
 
     var Record = Parse.Object.extend("Record");
     var day = new Date().getDate()
