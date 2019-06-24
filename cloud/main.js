@@ -165,7 +165,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					// console.log('cal_work_hours: add time|' + time)
 					sum = sum + time
 					if(k == new Date().getDate()){
-						todayUpHours = time(1000 * 60 * 60)
+						todayUpHours = time/(1000 * 60 * 60)
 					}
 				}
 			}
