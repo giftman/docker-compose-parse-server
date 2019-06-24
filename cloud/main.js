@@ -48,6 +48,19 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 	}
 });
 
+Parse.Cloud.job("clearTestData", async (req,res) => {
+    var Record = Parse.Object.extend("Record");
+    var Report = Parse.Object.extend("Report");
+    var Revenue = Parse.Object.extend("Revenue");
+    var _all = new Parse.Query(Record);
+    _all.limit(10000)
+	// results has the list of users with a hometown team with a losing record
+	const results = await _all.find({useMasterKey: true});
+	console.log(results.length)
+	for(var i=0;i < results.length;i++){
+		await results[i].destroy({useMasterKey: true})
+	}
+});
 
 Parse.Cloud.job("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
@@ -106,6 +119,7 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 			_month = _month + parseFloat(_list[k].calRevenue)
 			_today = _today + parseFloat(_list[k].dayRevenue)
 		}
+		//Todo累计是加上一个月的比较方便
 		_leiji = parseFloat(results[i].get('total'))|| 0
 		       - parseFloat(results[i].get('monthTotal'))||0 + _month
 
