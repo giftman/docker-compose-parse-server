@@ -55,11 +55,28 @@ Parse.Cloud.job("clearTestData", async (req,res) => {
     var _all = new Parse.Query(Record);
     _all.limit(10000)
 	// results has the list of users with a hometown team with a losing record
-	const results = await _all.find({useMasterKey: true});
-	console.log(results.length)
+	let results = await _all.find({useMasterKey: true});
+	console.log('clear Record:' + results.length)
 	for(var i=0;i < results.length;i++){
 		await results[i].destroy({useMasterKey: true})
 	}
+	 _all = new Parse.Query(Report);
+    _all.limit(10000)
+	// results has the list of users with a hometown team with a losing record
+	results = await _all.find({useMasterKey: true});
+	console.log('clear Report:' + results.length)
+	for(var i=0;i < results.length;i++){
+		await results[i].destroy({useMasterKey: true})
+	}
+	 _all = new Parse.Query(Revenue);
+    // _all.limit(10000)
+	// results has the list of users with a hometown team with a losing record
+	results = await _all.find({useMasterKey: true});
+	console.log('clear Revenue:' + results.length)
+	for(var i=0;i < results.length;i++){
+		await results[i].destroy({useMasterKey: true})
+	}
+
 });
 
 Parse.Cloud.job("mockDcard", async (req,res) => {
