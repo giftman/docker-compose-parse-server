@@ -85,6 +85,33 @@ Parse.Cloud.job("mockDcard", async (req,res) => {
 	}
 });
 
+Parse.Cloud.job("calRevenue", async (req,res) => {
+    var Revenue = Parse.Object.extend("Revenue");
+    var allRevenue = new Parse.Query(Revenue);
+    //只算当月
+    allRevenue.greaterThan("createdAt", getMonthStartDate());
+    
+    const results = await allRevenue.find({useMasterKey: true})
+	for(var i=0;i < results.length;i++){
+		console.log(results[i])
+
+		var _today = 0
+		var _leiji = results[i].get('total') - results[i].get('monthTotal')
+		var _month = 0
+		var _workers = 0
+		var _list = results[i].get('list') || []
+		_workers = _list.length
+		for(let k in _list){
+			console.log(_list[k])
+			_month = _month + _list[k].calRevenue
+			_today = _today + _list[k].todayRevenue
+		}
+		_leiji = _leiji + _month
+
+		await results[i].save({total:_leiji,monthTotal:_month,today:_today,workers:_workers},{useMasterKey: true})
+	}
+});
+
 function sleep(delay) {
   var start = (new Date()).getTime();
   while ((new Date()).getTime() - start < delay) {
@@ -207,6 +234,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				
 
 				let revenue = _u.get('revenue') || {}
+				calRevenue = (revenue[user.id].calRevenue || 0)+ calRevenue
 				revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
 				_u.set('revenue', revenue)
 				await _u.save(null,{useMasterKey:true})
