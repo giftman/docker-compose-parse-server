@@ -52,7 +52,7 @@ Parse.Cloud.define("clearUser", async (req,res) => {
 Parse.Cloud.job("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
     allUser.greaterThan("idcard","50000")
-    // allUser.limit(1)
+    allUser.limit(1)
 
     var Record = Parse.Object.extend("Record");
     var day = new Date().getDate()
@@ -93,23 +93,23 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
     
     const results = await allRevenue.find({useMasterKey: true})
 	for(var i=0;i < results.length;i++){
-		console.log(results[i])
+		// console.log(results[i])
 
 		var _today = 0
 		var _leiji = 0
 		var _month = 0
 		var _workers = 0
-		var _list = results[i].get('list') || []
-		_workers = _list.length
+		var _list = results[i].get('list') || {}
+		_workers = Object.keys(_list).length
 		for(let k in _list){
-			console.log(_list[k])
+			// console.log(_list[k])
 			_month = _month + parseFloat(_list[k].calRevenue)
-			_today = _today + parseFloat(_list[k].todayRevenue)
+			_today = _today + parseFloat(_list[k].dayRevenue)
 		}
 		_leiji = parseFloat(results[i].get('total'))|| 0
 		       - parseFloat(results[i].get('monthTotal'))||0 + _month
 
-		await results[i].save({total:_leiji,monthTotal:_month,today:_today,workers:_workers},{useMasterKey: true})
+		await results[i].save({total:_leiji.toFixed(2),monthTotal:_month.toFixed(2),today:_today,workers:_workers},{useMasterKey: true})
 	}
 });
 
@@ -139,6 +139,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	  query.equalTo("parent", user);
 	  let uptimes = []
 	  let listByDay = {}
+	  let todayUpHours = 0
 
 	  try {
 			var results = await query.find({useMasterKey: true});
@@ -163,6 +164,9 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					let time = listByDay[k][1].get('time') - listByDay[k][0].get('time')
 					// console.log('cal_work_hours: add time|' + time)
 					sum = sum + time
+					if(k == new Date().getDate()){
+						todayUpHours = time
+					}
 				}
 			}
 			console.log('cal_work_hours: sum|' + sum)
@@ -227,16 +231,15 @@ Parse.Cloud.afterSave("Record", async (req) => {
 					rato = rato.toFixed(3)
 				}
 				//营收 等于 岗位营收 * 多级分成 * 时间
-				let calRevenue = (jobRevenue * rato * uphours).toFixed(2)
-
+				let calRevenue = (jobRevenue * rato * uphours)
+				let dayRevenue = (jobRevenue * rato * todayUpHours).toFixed(2)
 				console.log('revenue:' + jobRevenue + '|rato:' + rato + '|uphours:' + uphours)
 				console.log('calRevenue:')
 				console.log(calRevenue)
 				
 
 				let revenue = _u.get('revenue') || {}
-				calRevenue = (revenue[user.id].calRevenue || 0)+ calRevenue
-				revenue[user.id] = {calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
+				revenue[user.id] = {dayRevenue,calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
 				_u.set('revenue', revenue)
 				await _u.save(null,{useMasterKey:true})
 
@@ -256,7 +259,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
-				let calData = {calRevenue,name:user.get('name'),id:user.id}
+				calRevenue = ((parseFloat(revenue_list.calRevenue) || 0)+ calRevenue).toFixed(2)
+				let calData = {dayRevenue,calRevenue,name:user.get('name'),id:user.id}
 				if(user.id == origin_user_id){
 					calData.uptimes = cal.uptimes
 				}
