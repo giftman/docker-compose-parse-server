@@ -130,11 +130,15 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 		var _month = 0
 		var _workers = 0
 		var _list = results[i].get('list') || {}
-		_workers = Object.keys(_list).length
+		_workers = 0
 		for(let k in _list){
 			// console.log(_list[k])
-			_month = _month + parseFloat(_list[k].calRevenue)
-			_today = _today + parseFloat(_list[k].dayRevenue)
+			for (let l in _list[k]){
+				_month = _month + parseFloat(_list[k][l].calRevenue)
+				_today = _today + parseFloat(_list[k][l].dayRevenue)
+				_workers = _workers + 1
+			}
+			
 		}
 		//Todo累计是加上一个月的比较方便
 		_leiji = parseFloat(results[i].get('total'))|| 0
@@ -303,10 +307,11 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name')}
 				if(user.id == origin_user.id){
 					calData.uptimes = cal.uptimes
-					revenue_list[user.id] = calData
-				}else{
-					revenue_list[user.id][origin_user.id] = calData
 				}
+				// 	revenue_list[user.id] = calData
+				// }else{
+				revenue_list[user.id][origin_user.id] = calData
+				// }
 				
 				newRevenue.set('list',revenue_list)
 				await newRevenue.save(null,{useMasterKey:true})
