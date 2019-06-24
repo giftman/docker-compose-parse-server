@@ -263,7 +263,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				}
 				//营收 等于 岗位营收 * 多级分成 * 时间
 				let calRevenue = (jobRevenue * rato * uphours)
-				let dayRevenue = (jobRevenue * rato * todayUpHours).toFixed(2)
+				let dayRevenue = (jobRevenue * rato * todayUpHours)
 				console.log('revenue:' + jobRevenue + '|rato:' + rato + '|uphours:' + uphours)
 				console.log('calRevenue:')
 				console.log(calRevenue)
@@ -290,7 +290,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
-				calRevenue = ((parseFloat(revenue_list.calRevenue) || 0)+ calRevenue).toFixed(2)
+				calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
+				dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
 				let calData = {dayRevenue,calRevenue,name:user.get('name'),id:user.id}
 				if(user.id == origin_user_id){
 					calData.uptimes = cal.uptimes
