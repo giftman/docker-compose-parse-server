@@ -290,13 +290,13 @@ Parse.Cloud.afterSave("Record", async (req) => {
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
-				if(revenue_list[user.id]){
-					calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
-					dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
-				}else{
+				// if(revenue_list[user.id]){
+				// 	calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
+				// 	dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
+				// }else{
 					calRevenue = calRevenue.toFixed(2)
 					dayRevenue = dayRevenue.toFixed(2)
-				}
+				// }
 				
 				let calData = {dayRevenue,calRevenue,name:user.get('name'),id:user.id}
 				if(user.id == origin_user_id){
