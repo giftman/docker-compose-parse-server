@@ -81,7 +81,7 @@ Parse.Cloud.job("clearTestData", async (req,res) => {
 
 Parse.Cloud.job("mockDcard", async (req,res) => {
     var allUser = new Parse.Query(Parse.User);
-    allUser.greaterThan("idcard","50000")
+    allUser.greaterThan("idcard","50177")
     // allUser.limit(2)
 
     var Record = Parse.Object.extend("Record");
@@ -142,7 +142,7 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 		}
 		//Todo累计是加上一个月的比较方便
 		var lastMonth = new Parse.Query(Revenue)
-		lastMonth.equalTo('month', getMonthTime())
+		lastMonth.equalTo('month', getMonthTime(true))
 		lastMonth.equalTo('parent', results[i].get('parent'))
 		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
 		if(lastMonthRevenue){
@@ -281,9 +281,9 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				
 
 				let revenue = _u.get('revenue') || {}
-				revenue[user.id] = {dayRevenue,calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
-				_u.set('revenue', revenue)
-				await _u.save(null,{useMasterKey:true})
+				// revenue[user.id] = {dayRevenue,calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
+				// _u.set('revenue', revenue)
+				// await _u.save(null,{useMasterKey:true})
 
 				//换成存Revenue
 				var Revenue = Parse.Object.extend("Revenue");
