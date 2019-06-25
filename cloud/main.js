@@ -102,7 +102,7 @@ Parse.Cloud.job("mockDcard", async (req,res) => {
 				'day':j+""
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
-			sleep(500);
+			sleep(1000);
 			let record2 = new Record()
 			await record2.save({
 				'action':false,
@@ -326,6 +326,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				user = _u
 			}
 		} catch(e) {
+			console.log('error info:')
 			console.log(e.message)
 		}
 }
