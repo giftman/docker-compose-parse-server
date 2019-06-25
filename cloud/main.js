@@ -30,7 +30,8 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 
 Parse.Cloud.define("changePassword", async (req,res) => {
 	//params {'oldPassword','newPassWord'}
-	sessionToken = req.user.get("sessionToken");
+	let userId = req.user.id
+	let sessionToken = req.user.get("sessionToken");
 	if(!userId || !sessionToken) return {
 		"message": "参数不齐"
 	}
