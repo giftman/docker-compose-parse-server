@@ -102,7 +102,7 @@ Parse.Cloud.job("mockDcard", async (req,res) => {
 				'day':j+""
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
-			sleep(50);
+			sleep(200);
 			let record2 = new Record()
 			await record2.save({
 				'action':false,
@@ -305,8 +305,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				// 	calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
 				// 	dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
 				// }else{
-					calRevenue = calRevenue.toFixed(2)
-					dayRevenue = dayRevenue.toFixed(2)
+				calRevenue = calRevenue.toFixed(2)
+				dayRevenue = dayRevenue.toFixed(2)
 				// }
 				if(!revenue_list[user.id]){
 					revenue_list[user.id] = {}
