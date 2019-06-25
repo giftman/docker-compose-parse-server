@@ -102,7 +102,7 @@ Parse.Cloud.job("mockDcard", async (req,res) => {
 				'day':j+""
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
-			sleep(200);
+			sleep(500);
 			let record2 = new Record()
 			await record2.save({
 				'action':false,
