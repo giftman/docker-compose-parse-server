@@ -42,7 +42,7 @@ Parse.Cloud.define("changePassword", async (req,res) => {
 	console.log(req.params)
 	user.setPassword(req.params.newPassWord);
 	await user.save(null,{useMasterKey:true})
-	return {}
+	return 1
 });
 
 Parse.Cloud.define("request", async (req,res) => {
