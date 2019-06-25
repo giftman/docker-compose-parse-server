@@ -28,6 +28,23 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 	return 1
 });
 
+Parse.Cloud.define("changePassword", async (req,res) => {
+	//params {'oldPassword','newPassWord'}
+	sessionToken = req.user.get("sessionToken");
+	if(!userId || !sessionToken) return {
+		"message": "参数不齐"
+	}
+
+	let user = req.user
+	console.log(user)
+	console.log(user.get('password'))
+	console.log(req.params)
+	if(req.params.oldPassWord = user.get('password')){
+		await user.save({password:req.params.newPassWord},{useMasterKey:true})
+	}
+	return 1
+});
+
 Parse.Cloud.define("request", async (req,res) => {
 	var url = req.params.url
    var result =  await Parse.Cloud.httpRequest({
