@@ -36,11 +36,11 @@ Parse.Cloud.define("changePassword", async (req,res) => {
 		"message": "参数不齐"
 	}
 
-	let user = req.user
+	let user = await req.user.fetch()
 	console.log(user)
 	console.log(user.get('password'))
 	console.log(req.params)
-	if(req.params.oldPassWord = user.get('password')){
+	if(req.params.oldPassWord == user.get('password')){
 		await user.save({password:req.params.newPassWord},{useMasterKey:true})
 	}
 	return 1
