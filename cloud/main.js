@@ -40,9 +40,8 @@ Parse.Cloud.define("changePassword", async (req,res) => {
 	console.log(user)
 	console.log(user.get('password'))
 	console.log(req.params)
-	if(req.params.oldPassWord == user.get('password')){
-		await user.save({password:req.params.newPassWord},{useMasterKey:true})
-	}
+	user.setPassword(req.params.newPassWord);
+	await user.save(null,{useMasterKey:true)
 	return 1
 });
 
