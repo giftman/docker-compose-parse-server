@@ -350,10 +350,15 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	console.log('end')
 });
 
-function calRevenue(result){
-	let user = result.shift()
-
-}
+Parse.Cloud.beforeSave("User", async (req) => {
+  let _user = req.object
+  var result = []
+  let parents = []
+  for (let i  of getUsers(result,_user)){
+  	parents.push(i.id)
+  }
+  req.object.parents = parents
+});
 
 
 async function getUsers(result,user){
