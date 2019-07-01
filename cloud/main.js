@@ -21,6 +21,11 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 	try {
 		var objs = await query.find({useMasterKey: true});
 		//Todo  管理员及创建者才可以继续修改 否则返回非法操作
+		if(typeof req.params.job == "string"){
+		  	let newJob = new Parse.Object.extend("Vocation")
+		  	newJob.id = req.params.job
+		  	params.job = newJob
+		 }
 		await objs[0].save({...req.params},{useMasterKey:true})
 	} catch(e) {
 		return e.message
@@ -375,9 +380,10 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   let _user = req.object
   var result = []
   let parents = []
-  if(typeof _user.job == "string"){
+  if(typeof _user.get('job') == "string"){
   	let newJob = new Parse.Object.extend("Vocation")
-  	_user.job = newJob
+  	newJob.id = _user.job
+  	_user.set('job',newJob)
   }
   for (let i  of await getUsers(result,_user)){
   	parents.push(i.id)
