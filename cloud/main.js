@@ -375,6 +375,10 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   let _user = req.object
   var result = []
   let parents = []
+  if(typeof _user.job == "string"){
+  	let newJob = new Parse.Object.extend("Vocation")
+  	_user.job = newJob
+  }
   for (let i  of await getUsers(result,_user)){
   	parents.push(i.id)
   }
