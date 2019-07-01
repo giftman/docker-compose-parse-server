@@ -358,7 +358,7 @@ Parse.Cloud.beforeSave("User", async (req) => {
   for (let i  of await getUsers(result,_user)){
   	parents.push(i.id)
   }
-  req.object.parents = parents
+  req.object.set('parents',parents)
   console.log(req.object)
 });
 
