@@ -215,8 +215,6 @@ Parse.Cloud.afterSave("Record", async (req) => {
 		"calIncome":0
   }
   if(!req.object.get('action')){
-
-  
 	  let user = await req.object.get('parent').fetch()
 	  const origin_user = user
 	  const query = new Parse.Query("Record");
@@ -372,8 +370,12 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			console.log('error info:')
 			console.log(e.message)
 		}
+}else{
+	let uptimes = req.user.get('uptimes') || 0
+	await req.user.save({uptimes: uptimes + 1},{useMasterKey: true})
 }
 	console.log('end')
+}
 });
 
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
