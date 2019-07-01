@@ -351,6 +351,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 });
 
 Parse.Cloud.beforeSave("User", async (req) => {
+  console.log('beforeSave User')
   let _user = req.object
   var result = []
   let parents = []
