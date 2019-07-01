@@ -25,7 +25,7 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 			var Vocation = Parse.Object.extend("Vocation");
 		  	let newJob = new Vocation()
 		  	newJob.id = req.params.job
-		  	params.job = newJob
+		  	req.params.job = newJob
 		 }
 		await objs[0].save({...req.params},{useMasterKey:true})
 	} catch(e) {
