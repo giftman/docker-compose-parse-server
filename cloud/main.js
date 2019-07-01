@@ -371,11 +371,11 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			console.log(e.message)
 		}
 }else{
-	let uptimes = req.user.get('uptimes') || 0
-	await req.user.save({uptimes: uptimes + 1},{useMasterKey: true})
+		let uptimes = req.user.get('uptimes') || 0
+		await req.user.save({uptimes: uptimes + 1},{useMasterKey: true})
 }
-	console.log('end')
-}
+console.log('end')
+
 });
 
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
