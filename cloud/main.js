@@ -324,6 +324,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				let revenue = _u.get('revenue') || {}
 				// revenue[user.id] = {dayRevenue,calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
 				// _u.set('revenue', revenue)
+				let workers_up = _u.get('uptimes') || 0
+				await _u.save({uptimes: workers_up + 1},{useMasterKey: true})
 				// await _u.save(null,{useMasterKey:true})
 
 				//换成存Revenue
@@ -371,8 +373,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 			console.log(e.message)
 		}
 }else{
-		let uptimes = req.user.get('uptimes') || 0
-		await req.user.save({uptimes: uptimes + 1},{useMasterKey: true})
+		
 }
 console.log('end')
 
