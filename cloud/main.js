@@ -354,7 +354,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				if(!revenue_list[user.id]){
 					revenue_list[user.id] = {}
 				}
-				let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name')}
+				let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name'),uptimes:cal.uptimes}
 				if(user.id == origin_user.id){
 					calData.uptimes = cal.uptimes
 				}
