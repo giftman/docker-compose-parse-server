@@ -290,6 +290,8 @@ Parse.Cloud.afterSave("Record", async (req) => {
 
 		    console.log(cal)
 			await newReport.save({...cal},{useMasterKey:true})
+
+
 			//Todo 算revenue
 			let jobRevenue = job.get('revenue')
 			let result = []
@@ -344,6 +346,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 						newRevenue.set('month',cal.month)
 					}
 				let revenue_list = newRevenue.get('list') || {}
+				
 				// if(revenue_list[user.id]){
 				// 	calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
 				// 	dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
