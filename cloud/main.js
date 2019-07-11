@@ -697,6 +697,7 @@ async function saveAllRato(user){
 	let jobs = await getJobDict()
 	for(let i in child_user_list){
 		if(i.get('job')){
+			console.log(i)
 			let jobRevenue = jobs[i.get('job').id].get('revenue')
 			await saveRato(i,jobRevenue)
 		}
