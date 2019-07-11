@@ -762,8 +762,7 @@ async function saveRato(user,jobRevenue){
 				// }
 				
 				// newRevenue.set('hourRevenue',revenue_list)
-				await _u.save({'hourRevenue',revenue_list},{useMasterKey:true})
-
+				await _u.save({'hourRevenue':revenue_list},{useMasterKey:true})
 				user = _u
 			}
 		
