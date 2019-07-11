@@ -216,7 +216,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			let reportDict = await getAllReportDict()
 			let revenueDict = await getRevenueDict()
 			let jobDict = await getJobDict()
-			for(let user in allUser){
+			for(let user of allUser){
 				let status = user.get('status')
 				let worktime = user.get('worktime')
 				let job = user.get('job')
@@ -588,7 +588,7 @@ async function getAllReportDict(){
 	let reports = await reports.find({useMasterKey: true})
 
 	let reportDict = {}
-	for(let report in reports){
+	for(let report of reports){
 		reportDict[report.get('parent').id] = report
 	}
 	return reportDict
@@ -603,7 +603,7 @@ async function getRevenueDict(){
 	revenue_query.equalTo("month", getMonthTime());
 	let revenue_record = await revenue_query.find({useMasterKey: true})
 
-	for(let revenue in revenue_record){
+	for(let revenue of revenue_record){
 		revenueDict[revenue.get('parent').id] = revenue
 	}
 	return revenueDict
@@ -615,8 +615,8 @@ async function getJobDict(){
 	let job = new Vocation()
 	let job_query = new Parse.Query(job);
 	let jobs = await job_query.find({useMasterKey: true})
-
-	for(let job in jobs){
+	console.log(jobs)
+	for(let job of jobs){
 		jobDict[job.id] = job
 	}
 	return jobDict
@@ -627,7 +627,7 @@ async function getAllUsersDict(){
 
 	let userDict = {}
 
-	for(let user in allUser){
+	for(let user of allUser){
 		userDict[user.id] = user
 	}
 
@@ -696,7 +696,7 @@ async function saveAllRato(user){
     console.log('createRatoRevenue')
 	let jobs = await getJobDict()
 	console.log(jobs)
-	for(let i in child_user_list){
+	for(let i of child_user_list){
 		if(i.get('job')){
 			console.log(i)
 			let jobRevenue = jobs[i.get('job').id].get('revenue')
@@ -761,8 +761,8 @@ async function saveRato(user,jobRevenue){
 				revenue_list[user.id] = hourRevenue
 				// }
 				
-				newRevenue.set('hourRevenue',revenue_list)
-				await _u.save(null,{useMasterKey:true})
+				// newRevenue.set('hourRevenue',revenue_list)
+				await _u.save({'hourRevenue',revenue_list},{useMasterKey:true})
 
 				user = _u
 			}
