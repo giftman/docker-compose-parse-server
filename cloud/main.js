@@ -26,6 +26,12 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 		  	let newJob = new Vocation()
 		  	newJob.id = req.params.job
 		  	req.params.job = newJob
+		  	await newJob.fetch()
+		  	if(objs[0].get('worknight') === true){
+		  		req.params.worktime = newJob.get('ntime')
+		  	}else{
+		  		req.params.worktime = newJob.get('dtime')
+		  	}
 		 }
 		await objs[0].save({...req.params},{useMasterKey:true})
 	} catch(e) {
@@ -159,6 +165,182 @@ Parse.Cloud.job("mockDcard", async (req,res) => {
 });
 
 Parse.Cloud.job("calRevenue", async (req,res) => {
+    var Revenue = Parse.Object.extend("Revenue");
+    var allRevenue = new Parse.Query(Revenue);
+    //只算当月
+    allRevenue.greaterThan("createdAt", getMonthStartDate());
+    
+    const results = await allRevenue.find({useMasterKey: true})
+	for(var i=0;i < results.length;i++){
+		// console.log(results[i])
+
+		var _today = 0
+		var _leiji = 0
+		var _month = 0
+		var _workers = 0
+		var _list = results[i].get('list') || {}
+		_workers = 0
+		for(let k in _list){
+			// console.log(_list[k])
+			for (let l in _list[k]){
+				_month = _month + parseFloat(_list[k][l].calRevenue)
+				_today = _today + parseFloat(_list[k][l].dayRevenue)
+				_workers = _workers + 1
+			}
+			
+		}
+		//Todo累计是加上一个月的比较方便
+		var lastMonth = new Parse.Query(Revenue)
+		lastMonth.equalTo('month', getMonthTime(true))
+		lastMonth.equalTo('parent', results[i].get('parent'))
+		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
+		if(lastMonthRevenue){
+			_leiji = (parseFloat(lastMonthRevenue.get('total'))|| 0)+ _month
+
+		}else{
+			_leiji = _month
+		}
+		await results[i].save({total:_leiji.toFixed(2),monthTotal:_month.toFixed(2),today:_today,workers:_workers},{useMasterKey: true})
+	}
+});
+
+Parse.Cloud.job("createRatoRevenue", async (req,res) => {
+    var user = new Parse.User();
+    user.id = 'DFjpXUZ6xd'
+
+    await saveAllRato(user)
+});
+
+Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
+    		//先这样存 决断下月的有没有，没有就新建一份
+			let allUser = await getAllUsers()
+			let reportDict = await getAllReportDict()
+			let revenueDict = await getRevenueDict()
+			let jobDict = await getJobDict()
+			for(let user in allUser){
+				let status = user.get('status')
+				let worktime = user.get('worktime')
+				let job = user.get('job')
+				let time_span = worktime.split('|')
+				// let is_working_time = time_range(time_span[0],time_span[1])
+				if(status === true 
+					// && is_working_time 
+					&& job){
+					job = jobDict[job.id]
+					let report
+					if(reportDict[user.id]){
+						report = reportDict[user.id]
+					}else{
+						var Report = Parse.Object.extend("Report");
+						report = new Report()
+						report.set('parent',user)
+						report.set('month',getMonthTime())
+					}
+					let uphours = report.get('uphours') + 1
+					let todayuphours = report.get('todayuphours') + 1
+					report.save({
+						todayuphours,
+						uphours,
+						calIncome: uphours * job.get('dincome')/60,
+						uphoursString:mssToHours(uphours)[0]
+					},{useMasterKey: true})
+
+					let parentsId = user.get('parents')
+					for(let p in parentsId){
+						var _u = userDict[p]
+						let newRevenue
+						if(revenueDict[p]){
+							newRevenue = revenueDict[p]
+						}else{
+							var Revenue = Parse.Object.extend("Revenue");
+							newRevenue = new Revenue()
+							newRevenue.set('parent',_u)
+							newRevenue.set('month',getMonthTime())
+						}
+						let revenue_list = newRevenue.get('list') || {}
+
+						let calData = {dayRevenue,calRevenue,uptimes:report.get('uptimes')}
+						if(!revenue_list[user.id]){
+							revenue_list[user.id] = {}
+						}
+						let dayRevenue = _u.get('revenue')[user.id]*100000*todayuphours/100000
+						let calRevenue = _u.get('revenue')[user.id]*100000*uphours/100000
+
+						revenue_list[_u.id][user.id] = calData
+						// }
+						
+						newRevenue.set('list',revenue_list)
+						revenueDict[p] = newRevenue
+					}
+				}
+			}
+
+			for (let r in revenueDict){
+				await revenueDict[r].save(null,{useMasterKey:true})
+			}
+
+});
+
+Parse.Cloud.job("updateRevenueOneHour", async (req,res) => {
+	var allUserQuery = new Parse.Query(Parse.User);
+    allUserQuery.limit(10000)
+	// results has the list of users with a hometown team with a losing record
+	const allUser = await allUserQuery.find({useMasterKey: true});
+
+	let userDict = {}
+	let revenueDict = {}
+	let reportDict = {}
+
+	for(let user in allUser){
+		userDict[user.id] = user
+	}
+
+	var Revenue = Parse.Object.extend("Revenue");
+	let newRevenue = new Revenue()
+    let revenue_query = new Parse.Query(newRevenue);
+	revenue_query.equalTo("month", getMonthTime());
+	let revenue_record = await revenue_query.find({useMasterKey: true})
+
+	for(let revenue in revenue_record){
+		revenueDict[revenue.get('parent').id] = revenue
+	}
+
+
+
+	for(let user in allUser){
+		if(user.get('status' == true)){
+			let parentsId = user.get('parents')
+			for(let p in parentsId){
+				var _u = userDict[p]
+
+				if(revenueDict[p]){
+					newRevenue = revenueDict[p]
+				}else{
+					newRevenue = new Revenue()
+					newRevenue.set('parent',_u)
+					newRevenue.set('month',getMonthTime())
+				}
+				let revenue_list = newRevenue.get('list') || {}
+				if(!revenue_list[user.id]){
+					revenue_list[user.id] = {}
+				}
+				let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name'),uptimes:cal.uptimes}
+				if(user.id == origin_user.id){
+					calData.uptimes = cal.uptimes
+				}
+				// 	revenue_list[user.id] = calData
+				// }else{
+				revenue_list[user.id][origin_user.id] = calData
+				// }
+				
+				newRevenue.set('list',revenue_list)
+				await newRevenue.save(null,{useMasterKey:true})
+			}
+		}
+	}
+
+
+
     var Revenue = Parse.Object.extend("Revenue");
     var allRevenue = new Parse.Query(Revenue);
     //只算当月
@@ -372,14 +554,13 @@ Parse.Cloud.afterSave("Record", async (req) => {
 				user = _u
 			}
 		} catch(e) {
-			console.log('error info:')
-			console.log(e.message)
-		}
-}else{
-		
-}
-console.log('end')
 
+		}
+	//全部算完把上班状态改掉
+  	await req.user.save({'status':false},{useMasterKey:true})
+}else{
+  	await req.user.save({'status':true},{useMasterKey:true})
+}
 });
 
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
@@ -387,17 +568,81 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   let _user = req.object
   var result = []
   let parents = []
-  if(typeof _user.get('job') == "string"){
-  	var Vocation = Parse.Object.extend("Vocation");
-		  	let newJob = new Vocation()
-  	newJob.id = _user.job
-  	_user.set('job',newJob)
-  }
+  // if(typeof _user.get('job') == "string"){
+  // 	var Vocation = Parse.Object.extend("Vocation");
+		//   	let newJob = new Vocation()
+  // 	newJob.id = _user.job
+  // 	_user.set('job',newJob)
+  // }
   for (let i  of await getUsers(result,_user)){
   	parents.push(i.id)
   }
   req.object.set('parents',parents)
 });
+
+async function getAllReportDict(){
+	var Report = Parse.Object.extend("Report");
+	let newReport = new Report()
+	let query_report = new Parse.Query(newReport);
+	query_report.equalTo("month", getMonthTime());
+	query_report.limit(1000)
+	let reports = await reports.find({useMasterKey: true})
+
+	let reportDict = {}
+	for(let report in reports){
+		reportDict[report.get('parent').id] = report
+	}
+	return reportDict
+}
+
+async function getRevenueDict(){
+	let revenueDict = {}
+
+	var Revenue = Parse.Object.extend("Revenue");
+	let newRevenue = new Revenue()
+    let revenue_query = new Parse.Query(newRevenue);
+	revenue_query.equalTo("month", getMonthTime());
+	let revenue_record = await revenue_query.find({useMasterKey: true})
+
+	for(let revenue in revenue_record){
+		revenueDict[revenue.get('parent').id] = revenue
+	}
+	return revenueDict
+}
+
+async function getJobDict(){
+	let jobDict = {}
+	var Vocation = Parse.Object.extend("Vocation");
+	let job = new Vocation()
+	let job_query = new Parse.Query(job);
+	let jobs = await job_query.find({useMasterKey: true})
+
+	for(let job in jobs){
+		jobDict[job.id] = job
+	}
+	return jobDict
+}
+
+async function getAllUsersDict(){
+	const allUser = await getAllUsers()
+
+	let userDict = {}
+
+	for(let user in allUser){
+		userDict[user.id] = user
+	}
+
+	return userDict
+}
+
+async function getAllUsers(){
+	var allUserQuery = new Parse.Query(Parse.User);
+    allUserQuery.limit(10000)
+	// results has the list of users with a hometown team with a losing record
+	const allUser = await allUserQuery.find({useMasterKey: true});
+
+	return allUser
+}
 
 
 async function getUsers(result,user){
@@ -408,6 +653,118 @@ async function getUsers(result,user){
 	}else{
 		return result
 	}
+}
+
+function time_range(beginTime, endTime) {
+     var strb = beginTime.split (":");
+     if (strb.length != 2) {
+         return false;
+     }
+
+     var stre = endTime.split (":");
+     if (stre.length != 2) {
+         return false;
+     }
+
+     var b = new Date ();
+     var e = new Date ();
+     var n = new Date ();
+
+     b.setHours (strb[0]);
+     b.setMinutes (strb[1]);
+     e.setHours (stre[0]);
+     e.setMinutes (stre[1]);
+
+     if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
+         return true;
+     } else {
+         alert ("当前时间是：" + n.getHours () + ":" + n.getMinutes () + "，不在该时间范围内！");
+         return false;
+     }
+}
+
+async function getChildUser(user){
+	var query = new Parse.Query(Parse.User);
+	query.equalTo("parents", user.id);
+	query.limit(10000)
+	var child_user_list = await query.find({useMasterKey: true})
+	return child_user_list
+}
+
+
+async function saveAllRato(user){
+	var child_user_list = await getChildUser(user)
+	let jobs = await getJobDict()
+	for(let i in child_user_list){
+		if(i.get('job')){
+			let jobRevenue = jobs[i.get('job').id].get('revenue')
+			await saveRato(i,jobRevenue)
+		}
+	}
+}
+
+//user should be a worker
+async function saveRato(user,jobRevenue){
+			let result = []
+			result = await getUsers(result,user)
+			console.log(result)
+
+			//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
+			while(result.length){
+				//中间级的收益需要把下家的分掉
+				let _u = result.shift()
+				let rato = parseFloat(_u.get('percentage') || 1)
+				for(var i = 0 ;i < result.length;i++){
+					rato = rato * parseFloat(result[i].get('percentage') || 1)
+				}
+				//最后的管理员是取其余部分
+				if(!result.length){
+					rato = 1 - parseFloat(user.get('percentage') || 0)
+					rato = rato.toFixed(3)
+				}else{
+					rato = rato*(1 - parseFloat(user.get('percentage') || 0))
+					rato = rato.toFixed(3)
+				}
+				//营收 等于 岗位营收 * 多级分成 * 时间
+				let hourRevenue = (jobRevenue*100 * rato*100 )/10000
+				console.log('revenue:' + hourRevenue + '|rato:' + rato )
+				
+				
+
+				// let revenue = _u.get('revenue') || {}
+				// revenue[user.id] = {dayRevenue,calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
+				// _u.set('revenue', revenue)
+				// let workers_up = _u.get('uptimes') || 0
+				// await _u.save({uptimes: workers_up + 1},{useMasterKey: true})
+				// await _u.save(null,{useMasterKey:true})
+
+				let revenue_list = _u.get('hourRevenue') || {}
+				
+				// if(revenue_list[user.id]){
+				// 	calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
+				// 	dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
+				// }else{
+				// calRevenue = calRevenue.toFixed(2)
+				// dayRevenue = dayRevenue.toFixed(2)
+				// }
+				// if(!revenue_list[user.id]){
+				// 	revenue_list[user.id] = {}
+				// }
+				// let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name'),uptimes:cal.uptimes}
+				// if(user.id == origin_user.id){
+				// 	calData.uptimes = cal.uptimes
+				// }
+				// 	revenue_list[user.id] = calData
+				// }else{
+				revenue_list[user.id] = hourRevenue
+				// }
+				
+				newRevenue.set('hourRevenue',revenue_list)
+				await _u.save(null,{useMasterKey:true})
+
+				user = _u
+			}
+		
 }
 
 function getMonthTime(lastMonth){
