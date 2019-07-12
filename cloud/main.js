@@ -206,7 +206,7 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 
 Parse.Cloud.job("createRatoRevenue", async (req,res) => {
     var user = new Parse.User();
-    user.id = 'Ami68jW95a'
+    user.id = 'DFjpXUZ6xd'
     await saveAllRato(user)
 });
 
