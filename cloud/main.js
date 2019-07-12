@@ -261,9 +261,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 
 
 					let parentsId = user.get('parents')
-					console.log('-------parentsId ------------')
 					console.log(parentsId)
-					console.log('----------------Begin Update Revenue------------')
 					for(let p of parentsId){
 						console.log(p)
 						var _u = userDict[p]
@@ -304,7 +302,17 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			console.log(revenueDict)
 			console.log('----------------End------------')
 			for (let r in revenueDict){
-				await revenueDict[r].save(null,{useMasterKey:true})
+				var _today = 0
+				var _month = 0
+				var _list = revenueDict[r].get('list') || {}
+				for(let l in _list){
+					_month = _month + _list[l].calRevenue
+					_today = _month + _list[l].dayRevenue
+				}
+				console.log('----------------update RevenueTotal Data------------')
+				console.log(_month,_today)
+				console.log('----------------After RevenueTotal ------------')
+				await revenueDict[r].save({monthTotal:_month.toFixed(2),today:_today},{useMasterKey:true})
 			}
 
 });
