@@ -218,6 +218,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			let jobDict = await getJobDict()
 			console.log('updateReportWorkTimeOneMinute')
 			for(let user of allUser){
+				console.log('-------user ------------')
+				console.log(user)
+				console.log('----------------Begin Update Report------------')
 				let status = user.get('status')
 				let worktime = user.get('worktime')
 				let job = user.get('job')
@@ -226,9 +229,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				if(status === true 
 					// && is_working_time 
 					&& job){
-					console.log('-------user ------------')
-					console.log(user)
-					console.log('----------------Begin Update Report------------')
+					console.log('-------enter ------------')
 					job = jobDict[job.id]
 					let report
 					if(reportDict[user.id]){
