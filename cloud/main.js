@@ -42,7 +42,6 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 
 Parse.Cloud.define("delUser", async (req,res) => {
    let userId = req.params.id
-
 	// sessionToken = req.user.get("sessionToken");
 	// if(!userId || !sessionToken) return {
 	// 	"message": "参数不齐"
