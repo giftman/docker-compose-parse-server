@@ -693,6 +693,8 @@ async function getChildUser(user){
 
 async function saveAllRato(user){
 	var child_user_list = await getChildUser(user)
+	console.log('----------------It have these workers------------')
+	console.log(child_user_list)
     console.log('createRatoRevenue')
 	let jobs = await getJobDict()
 	for(let i of child_user_list){
