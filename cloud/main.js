@@ -213,6 +213,7 @@ Parse.Cloud.job("createRatoRevenue", async (req,res) => {
 Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
     		//先这样存 决断下月的有没有，没有就新建一份
 			let allUser = await getAllUsers()
+			let userDict = await getAllUsersDict()
 			let reportDict = await getAllReportDict()
 			let revenueDict = await getRevenueDict()
 			let jobDict = await getJobDict()
