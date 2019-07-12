@@ -164,7 +164,7 @@ Parse.Cloud.job("mockDcard", async (req,res) => {
 	}
 });
 
-Parse.Cloud.job("calRevenue", async (req,res) => {
+Parse.Cloud.define("calRevenue", async (req,res) => {
     var Revenue = Parse.Object.extend("Revenue");
     var allRevenue = new Parse.Query(Revenue);
     //只算当月
@@ -224,21 +224,15 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			let jobDict = await getJobDict()
 			console.log('updateReportWorkTimeOneMinute')
 			for(let user of allUser){
-				console.log('-------user ------------')
-				console.log(user)
-				console.log('----------------Begin Update Report------------')
 				let status = user.get('status') || false
 				let worktime = user.get('worktime') 
 				let job = user.get('job')
 				// let time_span = worktime.split('|')
-				console.log('-------Data ------------')
 				// console.log(time_span)
-				console.log('----------------Begin Update Report------------')
 				// let is_working_time = time_range(time_span[0],time_span[1])
 				if(status === true 
 					// && is_working_time 
 					&& job){
-					console.log('-------enter ------------')
 					job = jobDict[job.id]
 					let report
 					if(reportDict[user.id]){
@@ -286,9 +280,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						let dayRevenue = hourRevenue[user.id]*100000*todayuphours/(100000*60)
 						let calRevenue = hourRevenue[user.id]*100000*uphours/(100000*60)
 						let calData = {dayRevenue,calRevenue}
-						console.log('----------------update Report Data------------')
+						console.log('----------------update HourRevenue Result------------')
 						console.log(calData)
-						console.log('----------------Begin Update Report------------')
+						console.log('----------------update HourRevenue Result End------------')
 						revenue_list[user.id] = calData
 						// }
 						
@@ -298,9 +292,6 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					}
 				}
 			}
-			console.log('-------after update Revenue ------------')
-			console.log(revenueDict)
-			console.log('----------------End------------')
 			for (let r in revenueDict){
 				var _today = 0
 				var _month = 0
@@ -309,112 +300,14 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					_month = _month + _list[l].calRevenue
 					_today = _today + _list[l].dayRevenue
 				}
-				console.log('----------------update RevenueTotal Data------------')
-				console.log(_month,_today)
-				console.log('----------------After RevenueTotal ------------')
+				// console.log('----------------update RevenueTotal Data------------')
+				// console.log(_month,_today)
+				// console.log('----------------After RevenueTotal ------------')
 				await revenueDict[r].save({monthTotal:_month.toFixed(2),today:_today.toFixed(2)},{useMasterKey:true})
 			}
 
 });
 
-Parse.Cloud.job("updateRevenueOneHour", async (req,res) => {
-	var allUserQuery = new Parse.Query(Parse.User);
-    allUserQuery.limit(10000)
-	// results has the list of users with a hometown team with a losing record
-	const allUser = await allUserQuery.find({useMasterKey: true});
-
-	let userDict = {}
-	let revenueDict = {}
-	let reportDict = {}
-
-	for(let user of allUser){
-		userDict[user.id] = user
-	}
-
-	var Revenue = Parse.Object.extend("Revenue");
-	let newRevenue = new Revenue()
-    let revenue_query = new Parse.Query(newRevenue);
-	revenue_query.equalTo("month", getMonthTime());
-	let revenue_record = await revenue_query.find({useMasterKey: true})
-
-	for(let revenue in revenue_record){
-		revenueDict[revenue.get('parent').id] = revenue
-	}
-
-
-
-	for(let user in allUser){
-		if(user.get('status' == true)){
-			let parentsId = user.get('parents')
-			for(let p in parentsId){
-				var _u = userDict[p]
-
-				if(revenueDict[p]){
-					newRevenue = revenueDict[p]
-				}else{
-					newRevenue = new Revenue()
-					newRevenue.set('parent',_u)
-					newRevenue.set('month',getMonthTime())
-				}
-				let revenue_list = newRevenue.get('list') || {}
-				if(!revenue_list[user.id]){
-					revenue_list[user.id] = {}
-				}
-				let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name'),uptimes:cal.uptimes}
-				if(user.id == origin_user.id){
-					calData.uptimes = cal.uptimes
-				}
-				// 	revenue_list[user.id] = calData
-				// }else{
-				revenue_list[user.id][origin_user.id] = calData
-				// }
-				
-				newRevenue.set('list',revenue_list)
-				await newRevenue.save(null,{useMasterKey:true})
-			}
-		}
-	}
-
-
-
-    var Revenue = Parse.Object.extend("Revenue");
-    var allRevenue = new Parse.Query(Revenue);
-    //只算当月
-    allRevenue.greaterThan("createdAt", getMonthStartDate());
-    
-    const results = await allRevenue.find({useMasterKey: true})
-	for(var i=0;i < results.length;i++){
-		// console.log(results[i])
-
-		var _today = 0
-		var _leiji = 0
-		var _month = 0
-		var _workers = 0
-		var _list = results[i].get('list') || {}
-		_workers = 0
-		for(let k in _list){
-			// console.log(_list[k])
-			for (let l in _list[k]){
-				_month = _month + parseFloat(_list[k][l].calRevenue)
-				_today = _today + parseFloat(_list[k][l].dayRevenue)
-				_workers = _workers + 1
-			}
-			
-		}
-		//Todo累计是加上一个月的比较方便
-		var lastMonth = new Parse.Query(Revenue)
-		lastMonth.equalTo('month', getMonthTime(true))
-		lastMonth.equalTo('parent', results[i].get('parent'))
-		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
-		if(lastMonthRevenue){
-			_leiji = (parseFloat(lastMonthRevenue.get('total'))|| 0)+ _month
-
-		}else{
-			_leiji = _month
-		}
-		await results[i].save({total:_leiji.toFixed(2),monthTotal:_month.toFixed(2),today:_today,workers:_workers},{useMasterKey: true})
-	}
-});
 
 function sleep(delay) {
   var start = (new Date()).getTime();
@@ -595,7 +488,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 	//全部算完把上班状态改掉
   	await req.user.save({'status':false},{useMasterKey:true})
 }else{
-  	await req.user.save({'status':true},{useMasterKey:true})
+  	await req.user.save({'status':true,'uptimes':(req.user.get('uptimes') || 0) + 1},{useMasterKey:true})
 }
 });
 
