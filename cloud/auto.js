@@ -28,7 +28,7 @@ async function afterRecord (req) {
   req.object.set('parents',parents)
 }
 
-module.exports = {
+export default  {
   "afterRecord": afterRecord, // 获取指定位数字
   "beforeUserSave":beforeUserSave
 }
