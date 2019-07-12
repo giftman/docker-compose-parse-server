@@ -1,7 +1,7 @@
 'use strict';
-const Common = require('./common.js'),
+const Common = require('./common.js')
 
- const afterRecord = async (req) => {
+async function afterRecord (req) {
 	if(!req.object.get('action')){
 		  
 		//全部算完把上班状态改掉
@@ -11,7 +11,7 @@ const Common = require('./common.js'),
 	}
 }
 
- const beforeUserSave= async (req) => {
+ async function  beforeUserSave(req) {
   console.log('beforeSave User')
   let _user = req.object
   var result = []
