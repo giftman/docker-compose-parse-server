@@ -222,11 +222,8 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				console.log(user)
 				console.log('----------------Begin Update Report------------')
 				let status = user.get('status') || false
-				console.log(status)
 				let worktime = user.get('worktime') 
-				console.log(worktime)
 				let job = user.get('job')
-				console.log(job)
 				// let time_span = worktime.split('|')
 				console.log('-------Data ------------')
 				// console.log(time_span)
@@ -246,8 +243,8 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						report.set('parent',user)
 						report.set('month',getMonthTime())
 					}
-					let uphours = report.get('uphours') + 1
-					let todayuphours = report.get('todayuphours') + 1
+					let uphours = (report.get('uphours') || 0) + 1
+					let todayuphours = (report.get('todayuphours')||0) + 1
 					console.log('----------------update Report Data------------')
 					console.log({
 						todayuphours,
@@ -268,7 +265,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					console.log('-------parentsId ------------')
 					console.log(parentsId)
 					console.log('----------------Begin Update Revenue------------')
-					for(let p in parentsId){
+					for(let p of parentsId){
 						var _u = userDict[p]
 						let newRevenue
 						if(revenueDict[p]){
