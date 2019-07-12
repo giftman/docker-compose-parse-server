@@ -256,7 +256,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					report.save({
 						todayuphours,
 						uphours,
-						calIncome: uphours * job.get('dincome')/60,
+						calIncome: (uphours * job.get('dincome')/60).toFixed(2),
 						uphoursString:mssToHours(uphours)[0]
 					},{useMasterKey: true})
 
@@ -277,19 +277,22 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 							newRevenue.set('month',getMonthTime())
 						}
 						let revenue_list = newRevenue.get('list') || {}
-
-						let calData = {dayRevenue,calRevenue,uptimes:report.get('uptimes')}
-						if(!revenue_list[user.id]){
-							revenue_list[user.id] = {}
-						}
+						// if(!revenue_list[_u.id]){
+						// 	revenue_list[user.id] = {}
+						// }
 						let dayRevenue = _u.get('revenue')[user.id]*100000*todayuphours/100000
 						let calRevenue = _u.get('revenue')[user.id]*100000*uphours/100000
+						let calData = {dayRevenue,calRevenue}
 
-						revenue_list[_u.id][user.id] = calData
+						console.log('----------------update Report Data------------')
+						console.log(calData)
+						console.log('----------------Begin Update Report------------')
+						revenue_list[user.id] = calData
 						// }
 						
 						newRevenue.set('list',revenue_list)
 						revenueDict[p] = newRevenue
+
 					}
 				}
 			}
