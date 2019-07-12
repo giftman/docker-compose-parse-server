@@ -252,14 +252,6 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					//uphours 单位分钟
 					let uphours = (report.get('uphours') || 0) + 1
 					let todayuphours = (report.get('todayuphours')||0) + 1
-					console.log('----------------update Report Data------------')
-					console.log({
-						todayuphours,
-						uphours,
-						calIncome: uphours * job.get('dincome')/60,
-						uphoursString:mssToHours(uphours*60000)[0]
-					})
-					console.log('----------------Begin Update Report------------')
 					report.save({
 						todayuphours,
 						uphours,
@@ -291,10 +283,11 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						// 	revenue_list[user.id] = {}
 						// }
 						let hourRevenue = _u.get('hourRevenue') || {}
+						console.log('----------------update HourRevenue Data------------')
+						console.log('hourRevenue:' + hourRevenue + '|todayuphours:' + todayuphours + '|uphours:' + uphours)
 						let dayRevenue = hourRevenue[user.id]*100000*todayuphours/(100000*60)
 						let calRevenue = hourRevenue[user.id]*100000*uphours/(100000*60)
 						let calData = {dayRevenue,calRevenue}
-
 						console.log('----------------update Report Data------------')
 						console.log(calData)
 						console.log('----------------Begin Update Report------------')
