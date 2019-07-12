@@ -41,15 +41,11 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 });
 
 Parse.Cloud.define("delUser", async (req,res) => {
+	console.log(req)
+	
    let userId = req.params.id
-	// sessionToken = req.user.get("sessionToken");
-	// if(!userId || !sessionToken) return {
-	// 	"message": "参数不齐"
-	// }
-
 	let query = new Parse.Query(Parse.User);
 	query.equalTo("objectId", userId);
-	// query.equalTo("parent", req.user);
 	query.limit(1);
 	try {
 		var objs = await query.find({useMasterKey: true});
