@@ -1,11 +1,12 @@
 
-import {afterRecord,beforeUserSave} from "./auto.js" //
-Parse.Cloud.afterSave("Record", afterRecord)
-Parse.Cloud.beforeSave(Parse.User,beforeUserSave)
+var auto = require("./auto.js"); // 用户
+Parse.Cloud.afterSave("Record", auto.afterRecord)
+Parse.Cloud.beforeSave(Parse.User,auto.beforeUserSave)
 
-import {updateUser,getMyUser,changePassword} from "./func.js" //
+var func = require("./func.js"); // 用户
 
-Parse.Cloud.define("updateUser", updateUser)
-Parse.Cloud.define("getMyUser", getMyUser)
-Parse.Cloud.define("changePassword",changePassword)
+Parse.Cloud.define("updateUser", func.updateUser)
+Parse.Cloud.define("getMyUser", func.getMyUser)
+Parse.Cloud.define("changePassword",func.changePassword)
+Parse.Cloud.define("request",func.request)
 
