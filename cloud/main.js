@@ -206,7 +206,7 @@ Parse.Cloud.job("calRevenue", async (req,res) => {
 
 Parse.Cloud.job("createRatoRevenue", async (req,res) => {
     var user = new Parse.User();
-    user.id = 'ySRJTtURSP'
+    user.id = 'Ami68jW95a'
     await saveAllRato(user)
 });
 
@@ -695,10 +695,8 @@ async function saveAllRato(user){
 	var child_user_list = await getChildUser(user)
     console.log('createRatoRevenue')
 	let jobs = await getJobDict()
-	console.log(jobs)
 	for(let i of child_user_list){
 		if(i.get('job')){
-			console.log(i)
 			let jobRevenue = jobs[i.get('job').id].get('revenue')
 			await saveRato(i,jobRevenue)
 		}
