@@ -497,16 +497,21 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   let _user = req.object
   var result = []
   let parents = []
-  // if(typeof _user.get('job') == "string"){
-  // 	var Vocation = Parse.Object.extend("Vocation");
-		//   	let newJob = new Vocation()
-  // 	newJob.id = _user.job
-  // 	_user.set('job',newJob)
-  // }
   for (let i  of await getUsers(result,_user)){
   	parents.push(i.id)
+  	if(i.id === _user.get('parent').id){
+  		await i.save({workers:(i.get('workers') || 0) + 1},{useMasterKey:true})
+  	}
   }
   req.object.set('parents',parents)
+});
+
+Parse.Cloud.beforeDelete(Parse.User, (request) => {
+  let _user = req.object
+  if(_user.get('parent')){
+  	let parent = await _user.get('parent').fetch()
+    await parent.save({workers:(parent.get('workers') || 1) - 1},{useMasterKey:true})
+  }
 });
 
 async function getAllReportDict(){
