@@ -40,6 +40,28 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 	return 1
 });
 
+Parse.Cloud.define("delUser", async (req,res) => {
+   let userId = req.params.id
+
+	// sessionToken = req.user.get("sessionToken");
+	// if(!userId || !sessionToken) return {
+	// 	"message": "参数不齐"
+	// }
+
+	let query = new Parse.Query(Parse.User);
+	query.equalTo("objectId", userId);
+	// query.equalTo("parent", req.user);
+	query.limit(1);
+	try {
+		var objs = await query.first({useMasterKey: true});
+		//Todo  管理员及创建者才可以继续修改 否则返回非法操作
+		await objs[0].destroy({useMasterKey:true})
+	} catch(e) {
+		return e.message
+	}
+	return 1
+});
+
 Parse.Cloud.define("getMyUser", async (req,res) => {
     let userId = req.user.id
 
