@@ -216,6 +216,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			let reportDict = await getAllReportDict()
 			let revenueDict = await getRevenueDict()
 			let jobDict = await getJobDict()
+			console.log('updateReportWorkTimeOneMinute')
 			for(let user of allUser){
 				let status = user.get('status')
 				let worktime = user.get('worktime')
@@ -602,7 +603,7 @@ async function getAllReportDict(){
 	let query_report = new Parse.Query(newReport);
 	query_report.equalTo("month", getMonthTime());
 	query_report.limit(1000)
-	let reports = await reports.find({useMasterKey: true})
+	let reports = await query_report.find({useMasterKey: true})
 
 	let reportDict = {}
 	for(let report of reports){
