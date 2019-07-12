@@ -225,6 +225,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				if(status === true 
 					// && is_working_time 
 					&& job){
+					console.log('-------user ------------')
+					console.log(user)
+					console.log('----------------Begin Update Report------------')
 					job = jobDict[job.id]
 					let report
 					if(reportDict[user.id]){
@@ -237,6 +240,14 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					}
 					let uphours = report.get('uphours') + 1
 					let todayuphours = report.get('todayuphours') + 1
+					console.log('----------------update Report Data------------')
+					console.log({
+						todayuphours,
+						uphours,
+						calIncome: uphours * job.get('dincome')/60,
+						uphoursString:mssToHours(uphours)[0]
+					})
+					console.log('----------------Begin Update Report------------')
 					report.save({
 						todayuphours,
 						uphours,
@@ -244,7 +255,11 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						uphoursString:mssToHours(uphours)[0]
 					},{useMasterKey: true})
 
+
 					let parentsId = user.get('parents')
+					console.log('-------parentsId ------------')
+					console.log(parentsId)
+					console.log('----------------Begin Update Revenue------------')
 					for(let p in parentsId){
 						var _u = userDict[p]
 						let newRevenue
@@ -273,7 +288,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					}
 				}
 			}
-
+			console.log('-------after update Revenue ------------')
+			console.log(revenueDict)
+			console.log('----------------End------------')
 			for (let r in revenueDict){
 				await revenueDict[r].save(null,{useMasterKey:true})
 			}
