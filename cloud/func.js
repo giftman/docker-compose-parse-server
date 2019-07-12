@@ -79,8 +79,8 @@ async function  request (req,res)  {
    return result.text
 }
 
-export default {
-	changePassword,
-	getMyUser,
-	updateUser,
+module.export ={
+	'changePassword':changePassword,
+	'getMyUser':getMyUser,
+	'updateUser':updateUser,
 }
