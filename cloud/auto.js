@@ -1,0 +1,29 @@
+'use strict';
+const Common = require('./common.js'),
+
+export const afterRecord = async (req) => {
+	if(!req.object.get('action')){
+		  
+		//全部算完把上班状态改掉
+	  	await req.user.save({'status':false},{useMasterKey:true})
+	}else{
+	  	await req.user.save({'status':true,'uptimes':(req.user.get('uptimes') || 0) + 1},{useMasterKey:true})
+	}
+}
+
+export const beforeUserSave= async (req) => {
+  console.log('beforeSave User')
+  let _user = req.object
+  var result = []
+  let parents = []
+  // if(typeof _user.get('job') == "string"){
+  // 	var Vocation = Parse.Object.extend("Vocation");
+		//   	let newJob = new Vocation()
+  // 	newJob.id = _user.job
+  // 	_user.set('job',newJob)
+  // }
+  for (let i  of await Common.getUsers(result,_user)){
+  	parents.push(i.id)
+  }
+  req.object.set('parents',parents)
+}
