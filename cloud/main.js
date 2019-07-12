@@ -615,7 +615,6 @@ async function getJobDict(){
 	let job = new Vocation()
 	let job_query = new Parse.Query(job);
 	let jobs = await job_query.find({useMasterKey: true})
-	console.log(jobs)
 	for(let job of jobs){
 		jobDict[job.id] = job
 	}
@@ -721,9 +720,9 @@ async function saveRato(user,jobRevenue){
 				let revenue_list = result[0].get('hourRevenue') || {}
 				revenue_list[userId] = jobRevenue
 				// newRevenue.set('hourRevenue',revenue_list)
-				await _u.save({'hourRevenue':revenue_list},{useMasterKey:true})
+				await result[0].save({'hourRevenue':revenue_list},{useMasterKey:true})
 			}else{
-					while(result.length){
+				while(result.length){
 					//中间级的收益需要把下家的分掉
 					let _u = result.shift()
 					let rato = parseFloat(_u.get('percentage') || 1)
