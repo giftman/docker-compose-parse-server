@@ -307,12 +307,12 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				var _list = revenueDict[r].get('list') || {}
 				for(let l in _list){
 					_month = _month + _list[l].calRevenue
-					_today = _month + _list[l].dayRevenue
+					_today = _today + _list[l].dayRevenue
 				}
 				console.log('----------------update RevenueTotal Data------------')
 				console.log(_month,_today)
 				console.log('----------------After RevenueTotal ------------')
-				await revenueDict[r].save({monthTotal:_month.toFixed(2),today:_today},{useMasterKey:true})
+				await revenueDict[r].save({monthTotal:_month.toFixed(2),today:_today.toFixed(2)},{useMasterKey:true})
 			}
 
 });
