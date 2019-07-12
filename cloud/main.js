@@ -213,7 +213,12 @@ Parse.Cloud.job("createRatoRevenue", async (req,res) => {
 Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
     		//先这样存 决断下月的有没有，没有就新建一份
 			let allUser = await getAllUsers()
-			let userDict = await getAllUsersDict()
+			let userDict = {}
+
+			for(let user of allUser){
+				userDict[user.id] = user
+			}
+
 			let reportDict = await getAllReportDict()
 			let revenueDict = await getRevenueDict()
 			let jobDict = await getJobDict()
@@ -267,7 +272,10 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					console.log(parentsId)
 					console.log('----------------Begin Update Revenue------------')
 					for(let p of parentsId){
+						console.log(p)
 						var _u = userDict[p]
+						console.log(_u)
+
 						let newRevenue
 						if(revenueDict[p]){
 							newRevenue = revenueDict[p]
@@ -316,7 +324,7 @@ Parse.Cloud.job("updateRevenueOneHour", async (req,res) => {
 	let revenueDict = {}
 	let reportDict = {}
 
-	for(let user in allUser){
+	for(let user of allUser){
 		userDict[user.id] = user
 	}
 
