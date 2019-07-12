@@ -225,6 +225,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				let worktime = user.get('worktime')
 				let job = user.get('job')
 				let time_span = worktime.split('|')
+				console.log('-------Data ------------')
+				console.log(status,worktime,job,time_span)
+				console.log('----------------Begin Update Report------------')
 				// let is_working_time = time_range(time_span[0],time_span[1])
 				if(status === true 
 					// && is_working_time 
