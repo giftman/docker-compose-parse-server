@@ -250,7 +250,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						todayuphours,
 						uphours,
 						calIncome: uphours * job.get('dincome')/60,
-						uphoursString:mssToHours(uphours)[0]
+						uphoursString:mssToHours(uphours*60000)[0]
 					})
 					console.log('----------------Begin Update Report------------')
 					report.save({
