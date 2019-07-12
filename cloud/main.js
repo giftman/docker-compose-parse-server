@@ -289,8 +289,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						// if(!revenue_list[_u.id]){
 						// 	revenue_list[user.id] = {}
 						// }
-						let dayRevenue = _u.get('revenue')[user.id]*100000*todayuphours/100000
-						let calRevenue = _u.get('revenue')[user.id]*100000*uphours/100000
+						let hourRevenue = _u.get('hourRevenue') || {}
+						let dayRevenue = hourRevenue[user.id]*100000*todayuphours/100000
+						let calRevenue = hourRevenue[user.id]*100000*uphours/100000
 						let calData = {dayRevenue,calRevenue}
 
 						console.log('----------------update Report Data------------')
