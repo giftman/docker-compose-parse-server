@@ -55,6 +55,7 @@ async function getMyUser  (req,res)  {
 
 async function  changePassword (req,res)  {
 	//params {'oldPassword','newPassWord'}
+	console.log('changePassword')
 	let userId = req.user.id
 	let sessionToken = req.user.get("sessionToken");
 	if(!userId || !sessionToken) return {
