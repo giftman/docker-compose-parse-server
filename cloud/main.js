@@ -714,60 +714,45 @@ async function saveRato(user,jobRevenue){
 			console.log('----------------Begin Cal------------')
 			//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
 			const userId = user.id + ""
-			while(result.length){
-				//中间级的收益需要把下家的分掉
-				let _u = result.shift()
-				let rato = parseFloat(_u.get('percentage') || 1)
-				for(var i = 0 ;i < result.length;i++){
-					rato = rato*100 * parseFloat(result[i].get('percentage') || 1) /100
-				}
-				//最后的管理员是取其余部分
-				if(!result.length){
-					rato = (100 - parseFloat(user.get('percentage')*100 || 0))/100
-				}
-				//营收 等于 岗位营收 * 多级分成 * 时间
-				let hourRevenue = (jobRevenue*100 * rato*100 )/10000
-				console.log('revenue:' + hourRevenue + '|rato:' + rato )
-				
-				// let revenue = _u.get('revenue') || {}
-				// revenue[user.id] = {dayRevenue,calRevenue,name:user.get('name'),uptimes:cal.uptimes,id:user.id}
-				// _u.set('revenue', revenue)
-				// let workers_up = _u.get('uptimes') || 0
-				// await _u.save({uptimes: workers_up + 1},{useMasterKey: true})
-				// await _u.save(null,{useMasterKey:true})
-
-				let revenue_list = _u.get('hourRevenue') || {}
-				
-				// if(revenue_list[user.id]){
-				// 	calRevenue = ((parseFloat(revenue_list[user.id].calRevenue) || 0)+ calRevenue).toFixed(2)
-				// 	dayRevenue = ((parseFloat(revenue_list[user.id].dayRevenue) || 0)+ dayRevenue).toFixed(2)
-				// }else{
-				// calRevenue = calRevenue.toFixed(2)
-				// dayRevenue = dayRevenue.toFixed(2)
-				// }
-				// if(!revenue_list[_u.id]){
-				// 	revenue_list[_u.id] = {}
-				// }
-				// let calData = {dayRevenue,calRevenue,parentName:user.get('name'),parentId:user.id,id:origin_user.id,name:origin_user.get('name'),uptimes:cal.uptimes}
-				// if(user.id == origin_user.id){
-				// 	calData.uptimes = cal.uptimes
-				// }
-				// 	revenue_list[user.id] = calData
-				// }else{
-				revenue_list[userId] = hourRevenue
-				// }
-				console.log('----------------End------------')
-				console.log('-------revenue_list------------')
-				console.log(revenue_list)
-				console.log('-------parent id ------------')
-				console.log(_u.id)
-				console.log('-------user id ------------')
-				console.log(userId)
-				console.log('----------------End------------')
+			//如果只有一个爷级是管理员
+			if(result.length === 1){
+				let revenue_list = result[0].get('hourRevenue') || {}
+				revenue_list[userId] = jobRevenue
 				// newRevenue.set('hourRevenue',revenue_list)
 				await _u.save({'hourRevenue':revenue_list},{useMasterKey:true})
-				user = _u
+			}else{
+					while(result.length){
+					//中间级的收益需要把下家的分掉
+					let _u = result.shift()
+					let rato = parseFloat(_u.get('percentage') || 1)
+					for(var i = 0 ;i < result.length;i++){
+						rato = rato*100 * parseFloat(result[i].get('percentage') || 1) /100
+					}
+					//最后的管理员是取其余部分
+					if(!result.length){
+						rato = (100 - parseFloat(user.get('percentage')*100 || 0))/100
+					}
+					//营收 等于 岗位营收 * 多级分成 * 时间
+					let hourRevenue = (jobRevenue*100 * rato*100 )/10000
+					console.log('revenue:' + hourRevenue + '|rato:' + rato )
+
+					let revenue_list = _u.get('hourRevenue') || {}
+					revenue_list[userId] = hourRevenue
+					// }
+					console.log('----------------End------------')
+					console.log('-------revenue_list------------')
+					console.log(revenue_list)
+					console.log('-------parent id ------------')
+					console.log(_u.id)
+					console.log('-------user id ------------')
+					console.log(userId)
+					console.log('----------------End------------')
+					// newRevenue.set('hourRevenue',revenue_list)
+					await _u.save({'hourRevenue':revenue_list},{useMasterKey:true})
+					user = _u
+				}
 			}
+			
 		
 }
 
