@@ -53,7 +53,7 @@ Parse.Cloud.define("delUser", async (req,res) => {
 	// query.equalTo("parent", req.user);
 	query.limit(1);
 	try {
-		var objs = await query.first({useMasterKey: true});
+		var objs = await query.find({useMasterKey: true});
 		//Todo  管理员及创建者才可以继续修改 否则返回非法操作
 		await objs[0].destroy({useMasterKey:true})
 	} catch(e) {
