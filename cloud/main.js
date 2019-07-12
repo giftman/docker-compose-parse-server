@@ -707,9 +707,13 @@ async function saveAllRato(user){
 async function saveRato(user,jobRevenue){
 			let result = []
 			result = await getUsers(result,user)
+			console.log('-------user id ------------')
+			console.log(user.id)
+			console.log('----------------It have these parents------------')
 			console.log(result)
 			console.log('----------------Begin Cal------------')
 			//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
+			const userId = user.id + ""
 			while(result.length){
 				//中间级的收益需要把下家的分掉
 				let _u = result.shift()
@@ -719,11 +723,7 @@ async function saveRato(user,jobRevenue){
 				}
 				//最后的管理员是取其余部分
 				if(!result.length){
-					rato = 1 - parseFloat(user.get('percentage') || 0)
-					rato = rato.toFixed(3)
-				}else{
-					rato = rato*(1 - parseFloat(user.get('percentage') || 0))
-					rato = rato.toFixed(3)
+					rato = (100 - parseFloat(user.get('percentage')*100 || 0))/100
 				}
 				//营收 等于 岗位营收 * 多级分成 * 时间
 				let hourRevenue = (jobRevenue*100 * rato*100 )/10000
@@ -754,19 +754,19 @@ async function saveRato(user,jobRevenue){
 				// }
 				// 	revenue_list[user.id] = calData
 				// }else{
-				revenue_list[user.id] = hourRevenue
+				revenue_list[userId] = hourRevenue
 				// }
-				console.log('----------------结果------------')
+				console.log('----------------End------------')
 				console.log('-------revenue_list------------')
 				console.log(revenue_list)
 				console.log('-------parent id ------------')
 				console.log(_u.id)
 				console.log('-------user id ------------')
-				console.log(user.id)
-				console.log('----------------结果------------')
+				console.log(userId)
+				console.log('----------------End------------')
 				// newRevenue.set('hourRevenue',revenue_list)
 				await _u.save({'hourRevenue':revenue_list},{useMasterKey:true})
-				// user = _u
+				user = _u
 			}
 		
 }
