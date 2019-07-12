@@ -506,7 +506,7 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   req.object.set('parents',parents)
 });
 
-Parse.Cloud.beforeDelete(Parse.User, (request) => {
+Parse.Cloud.beforeDelete(Parse.User, async (request) => {
   let _user = req.object
   if(_user.get('parent')){
   	let parent = await _user.get('parent').fetch()
