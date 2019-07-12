@@ -1,7 +1,7 @@
 'use strict';
 const Common = require('./common.js'),
 
-export const afterRecord = async (req) => {
+ const afterRecord = async (req) => {
 	if(!req.object.get('action')){
 		  
 		//全部算完把上班状态改掉
@@ -11,7 +11,7 @@ export const afterRecord = async (req) => {
 	}
 }
 
-export const beforeUserSave= async (req) => {
+ const beforeUserSave= async (req) => {
   console.log('beforeSave User')
   let _user = req.object
   var result = []
@@ -26,4 +26,9 @@ export const beforeUserSave= async (req) => {
   	parents.push(i.id)
   }
   req.object.set('parents',parents)
+}
+
+module.exports = {
+  "afterRecord": afterRecord, // 获取指定位数字
+  "beforeUserSave":beforeUserSave
 }

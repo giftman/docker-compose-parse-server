@@ -1,5 +1,5 @@
 'use strict';
-export const updateUser = async (req,res) => {
+const updateUser = async (req,res) => {
    let userId = req.params.id
 
 	// sessionToken = req.user.get("sessionToken");
@@ -33,7 +33,7 @@ export const updateUser = async (req,res) => {
 	return 1
 }
 
-export const getMyUser  = async (req,res) => {
+const getMyUser  = async (req,res) => {
     let userId = req.user.id
 
 	let sessionToken = req.user.get("sessionToken");
@@ -53,7 +53,7 @@ export const getMyUser  = async (req,res) => {
 	}
 }
 
-export const  changePassword= async (req,res) => {
+const  changePassword= async (req,res) => {
 	//params {'oldPassword','newPassWord'}
 	let userId = req.user.id
 	let sessionToken = req.user.get("sessionToken");
@@ -70,7 +70,7 @@ export const  changePassword= async (req,res) => {
 	return 1
 }
 
-export const arequest =  async (req,res) => {
+const request =  async (req,res) => {
 	var url = req.params.url
    var result =  await Parse.Cloud.httpRequest({
 	  url: url
