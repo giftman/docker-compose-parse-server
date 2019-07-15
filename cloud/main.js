@@ -238,6 +238,10 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
     }
 });
 
+Parse.Cloud.job("everyMonthReset", async (req,res) => {
+	//nothing now
+});
+
 
 Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
     		//先这样存 决断下月的有没有，没有就新建一份
@@ -329,6 +333,8 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				var _today = 0
 				var _month = 0
 				var _list = revenueDict[r].get('list') || {}
+				var origin_today_revenune = parseFloat(revenueDict[r].get('today'))
+
 				for(let l in _list){
 					_month = _month + _list[l].calRevenue
 					_today = _today + _list[l].dayRevenue
@@ -336,7 +342,8 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				// console.log('----------------update RevenueTotal Data------------')
 				// console.log(_month,_today)
 				// console.log('----------------After RevenueTotal ------------')
-				await revenueDict[r].save({monthTotal:_month.toFixed(2),today:_today.toFixed(2)},{useMasterKey:true})
+				let diff = (_today*100 - origin_today_revenune*100)/100
+				await revenueDict[r].save({monthTotal:_month.toFixed(2),today:_today.toFixed(2),diff},{useMasterKey:true})
 			}
 
 });
