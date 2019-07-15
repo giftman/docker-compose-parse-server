@@ -559,7 +559,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
   console.log('beforeSave User')
   const _user = req.object
-  const userId = req.object.id + ""
+  const userId = req.object.get('idcard')
   var result = []
   let parents = []
   try{
@@ -582,19 +582,20 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 });
 
 Parse.Cloud.beforeDelete(Parse.User, async (req) => {
-  // let _user = req.object
-  // try {
-	 //  	if(_user.get('parent')){
-	 //  		let parent = await _user.get('parent').fetch()
-	 //  		let wDict = parent.get('workers') || {}
-	 //  		if(wDict[_user.id]){
-	 //  			delete wDict[_user.id]
-	 //  			await parent.save({workers:wDict},{useMasterKey:true})
-	 //  		}
-  // 		}
-  // }catch(e) {
+  let _user = req.object
+  try {
+	  	if(_user.get('parent')){
+	  		let parent = await _user.get('parent').fetch()
+	  		let wDict = parent.get('workers') || {}
+	  		let idcard = _user.get('idcard')
+	  		if(wDict[idcard]){
+	  			delete wDict[idcard]
+	  			await parent.save({workers:wDict},{useMasterKey:true})
+	  		}
+  		}
+  }catch(e) {
 
-  // }
+  }
 });
 
 async function getAllReportDict(){
