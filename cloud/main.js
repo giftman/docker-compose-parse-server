@@ -666,7 +666,7 @@ function time_range(beginTime, endTime) {
 function getLocalTime(){
 	var localDate = new Date(new Date().toUTCString());
 	var localTime = localDate.getTime();
-	var localOffset = localDate.getTimezoneOffset()*60*1000;
+	var localOffset = 8*60*1000;
 	console.log(localOffset)
 	return new Date(localTime + localOffset);
 }
