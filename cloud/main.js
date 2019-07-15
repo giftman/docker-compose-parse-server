@@ -195,15 +195,14 @@ Parse.Cloud.define("calRevenue", async (req,res) => {
 		var _today = 0
 		var _leiji = 0
 		var _month = 0
-		var _workers = 0
+		// var _workers = 0
 		var _list = results[i].get('list') || {}
-		_workers = 0
 		for(let k in _list){
 			// console.log(_list[k])
 			for (let l in _list[k]){
 				_month = _month + parseFloat(_list[k][l].calRevenue)
 				_today = _today + parseFloat(_list[k][l].dayRevenue)
-				_workers = _workers + 1
+				// _workers = _workers + 1
 			}
 			
 		}
@@ -217,7 +216,7 @@ Parse.Cloud.define("calRevenue", async (req,res) => {
 		}else{
 			_leiji = _month
 		}
-		await results[i].save({total:_leiji.toFixed(2),monthTotal:_month.toFixed(2),today:_today,workers:_workers},{useMasterKey: true})
+		await results[i].save({total:_leiji.toFixed(2),monthTotal:_month.toFixed(2),today:_today},{useMasterKey: true})
 	}
 });
 
@@ -566,9 +565,13 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 	  	for (let i  of await getUsers(result,_user)){
 	  	parents.push(i.id)
 	  	if(i.id === _user.get('parent').id){
-	  		await i.save({workers:(i.get('workers') || 0) + 1},{useMasterKey:true})
-		  	}
-		  }
+	  		let wDict = i.get('workers') || {}
+	  		if(!wDict[i.id]){
+	  			wDict[i.id] = 1
+	  			await i.save({workers:wDict},{useMasterKey:true})
+	  		}
+		}
+	}
 		  req.object.set('parents',parents)
 	}catch(e){
 		console.log(e.message)
@@ -580,8 +583,12 @@ Parse.Cloud.beforeDelete(Parse.User, async (req) => {
   let _user = req.object
   try {
 	  	if(_user.get('parent')){
-	  	let parent = await _user.get('parent').fetch()
-	    await parent.save({workers:(parent.get('workers') || 1) - 1},{useMasterKey:true})
+	  		let parent = await _user.get('parent').fetch()
+	  		let wDict = parent.get('workers') || {}
+	  		if(wDict[_user.id]){
+	  			delete wDict[_user.id]
+	  			await parent.save({workers:wDict},{useMasterKey:true})
+	  		}
   		}
   }catch(e) {
 
