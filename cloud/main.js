@@ -260,12 +260,10 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				let is_working_time = true
 				if(worktime){
 				    let time_span = worktime.split('|')
-				    console.log(time_span)
 					is_working_time = time_range(time_span[0],time_span[1])
 				}else{
 					is_working_time = false
 				}
-				console.log(is_working_time)
 				if(status === true 
 					&& is_working_time 
 					&& job){
@@ -656,7 +654,7 @@ function time_range(beginTime, endTime) {
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
-         console.log("当前时间是：" + n.getHours () + ":" + n.getMinutes () + "，不在该时间范围内！");
+         console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
 }
