@@ -559,15 +559,17 @@ Parse.Cloud.afterSave("Record", async (req) => {
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
   console.log('beforeSave User')
   const _user = req.object
+  const userId = req.object.id + ""
   var result = []
   let parents = []
   try{
 	  	for (let i  of await getUsers(result,_user)){
 		  	parents.push(i.id)
 		  	if(i.id === _user.get('parent').id){
+		  		console.log(userId)
 		  		let wDict = i.get('workers') || {}
-		  		if(!wDict[_user.id]){
-		  			wDict[_user.id] = 1
+		  		if(!wDict[userId]){
+		  			wDict[userId] = 1
 		  			await i.save({workers:wDict},{useMasterKey:true})
 		  		}
 			}
