@@ -58,33 +58,6 @@ Parse.Cloud.define("delUser", async (req,res) => {
 	return 1
 });
 
-// Parse.Cloud.define("removeUser", async (req,res) => {
-//     let userId = req.user.id
-//     console.log('one')
-// 	let sessionToken = req.user.get("sessionToken");
-// 	if(!userId || !sessionToken) return {
-// 		"message": "参数不齐"
-// 	}
-// 	console.log('two')
-// 	let query = new Parse.Query(Parse.User);
-// 	query.equalTo("objectId", userId);
-// 	try {
-// 		var objs = await query.find({useMasterKey: true});
-// 		objs[0].destroy({useMasterKey: true}).then((myObject) => {
-// 		  // The object was deleted from the Parse Cloud.
-// 		  console.log('three')
-// 		  return 1
-// 		}, (error) => {
-// 		  // The delete failed.
-// 		  // error is a Parse.Error with an error code and message.
-// 		  return error.message
-// 		});
-// 		// await objs[0].destroy({useMasterKey: true})
-// 		return 1
-// 	} catch(e) {
-// 		return e.message
-// 	}
-// });
 Parse.Cloud.define("getMyUser", async (req,res) => {
     let userId = req.user.id
 
@@ -553,9 +526,11 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 
 Parse.Cloud.beforeDelete(Parse.User, async (req) => {
   let _user = req.object
-  if(_user.get('parent')){
-  	let parent = await _user.get('parent').fetch()
-    await parent.save({workers:(parent.get('workers') || 1) - 1},{useMasterKey:true})
+  try {
+	  	if(_user.get('parent')){
+	  	let parent = await _user.get('parent').fetch()
+	    await parent.save({workers:(parent.get('workers') || 1) - 1},{useMasterKey:true})
+  		}
   }
 });
 
