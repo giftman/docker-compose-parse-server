@@ -642,7 +642,7 @@ function time_range(beginTime, endTime) {
          return false;
      }
 
-     var b = new Date(new Date().toUTCString())
+     var b = new Date(new Date().toISOString().replace(/Z/, "+08");)
      console.log(b)
      var e = new Date ();
      var n = new Date ();
