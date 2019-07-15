@@ -654,6 +654,7 @@ function time_range(beginTime, endTime) {
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
+     	 console.log(n)
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
