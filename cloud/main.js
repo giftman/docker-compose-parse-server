@@ -68,7 +68,7 @@ Parse.Cloud.define("getMyUser", async (req,res) => {
 
 	let query = new Parse.Query(Parse.User);
 	query.equalTo("parents", userId);
-	query.select("name","idcard","sex","age","phone","education","address","person_detail","des","target_job","night_job","target_salary","percentage","job");
+	query.select("name","idcard","sex","age","phone","education","address","person_detail","des","target_job","night_job","target_salary","percentage","job","workers");
 	query.limit(300);
 	try {
 		var objs = await query.find({useMasterKey: true});
@@ -228,6 +228,18 @@ Parse.Cloud.job("createRatoRevenue", async (req,res) => {
     await saveAllRato(user)
 });
 
+Parse.Cloud.job("everydayResetNum", async (req,res) => {
+	let allUser = await getAllUsers()
+	let revenueDict = await getRevenueDict()
+	//每天凌晨开始重算每天收益
+    for(let r in revenueDict){
+    	await revenueDict[r].save({
+    		todayuphours:0,
+    	},{useMasterKey:true})
+    }
+});
+
+
 Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
     		//先这样存 决断下月的有没有，没有就新建一份
 			let allUser = await getAllUsers()
@@ -245,9 +257,10 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				let status = user.get('status') || false
 				let worktime = user.get('worktime') 
 				let job = user.get('job')
-				// let time_span = worktime.split('|')
+				let time_span = worktime.split('|')
 				// console.log(time_span)
-				// let is_working_time = time_range(time_span[0],time_span[1])
+				let is_working_time = time_range(time_span[0],time_span[1])
+				console.log(is_working_time)
 				if(status === true 
 					// && is_working_time 
 					&& job){
@@ -516,13 +529,13 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   var result = []
   let parents = []
   try{
-  	for (let i  of await getUsers(result,_user)){
-  	parents.push(i.id)
-  	if(i.id === _user.get('parent').id){
-  		await i.save({workers:(i.get('workers') || 0) + 1},{useMasterKey:true})
-	  	}
-	  }
-	  req.object.set('parents',parents)
+	  	for (let i  of await getUsers(result,_user)){
+	  	parents.push(i.id)
+	  	if(i.id === _user.get('parent').id){
+	  		await i.save({workers:(i.get('workers') || 0) + 1},{useMasterKey:true})
+		  	}
+		  }
+		  req.object.set('parents',parents)
 	}catch(e){
 		console.log(e.message)
 	}
@@ -638,7 +651,7 @@ function time_range(beginTime, endTime) {
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
-         alert ("当前时间是：" + n.getHours () + ":" + n.getMinutes () + "，不在该时间范围内！");
+         console.log("当前时间是：" + n.getHours () + ":" + n.getMinutes () + "，不在该时间范围内！");
          return false;
      }
 }
