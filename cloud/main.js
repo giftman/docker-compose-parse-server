@@ -258,7 +258,6 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				let worktime = user.get('worktime') 
 				let job = user.get('job')
 				let is_working_time = true
-				console.log('worktime' + worktime)
 				if(worktime){
 				    let time_span = worktime.split('|')
 					is_working_time = time_range(time_span[0],time_span[1])
@@ -643,7 +642,7 @@ function time_range(beginTime, endTime) {
          return false;
      }
 
-     var b = getLocalTime()
+     var b = new Date()
      var e = new Date ();
      var n = new Date ();
 
@@ -652,23 +651,15 @@ function time_range(beginTime, endTime) {
      e.setHours (stre[0]);
      e.setMinutes (stre[1]);
      console.log(b)
+     console.log(n)
+     console.log(e)
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
-     	 console.log(b)
-     	 console.log(n)
-     	 console.log(e)
+     	 
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
-}
-
-function getLocalTime(){
-	var localDate = new Date(new Date().toUTCString());
-	var localTime = localDate.getTime();
-	var localOffset = 8*60*1000;
-	console.log(localOffset)
-	return new Date(localTime + localOffset);
 }
 
 async function getChildUser(user){

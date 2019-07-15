@@ -151,6 +151,13 @@ function sleep(delay) {
   }
 }
 
+function getLocalTime(dateString){
+	var localDate = new Date(dateString);
+	var localTime = localDate.getTime();
+	var localOffset = localDate.getTimezoneOffset()*60*1000;
+	new Date(localTime + localOffset);
+}
+
 module.exports = {
 	"masterKey": {
 		useMasterKey: true
