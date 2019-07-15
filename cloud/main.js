@@ -642,8 +642,12 @@ function time_range(beginTime, endTime) {
          return false;
      }
 
-     var b = new Date(new Date().toISOString().replace(/Z/, "+08"))
-     console.log(b)
+     var b = new Date(new Date().replace(/Z/, "+08"))
+     console.log(b.toISOString())
+     console.log(b.toISOString().replace(/Z/,"+00"))
+     console.log(b.toISOString().replace(/Z/,"+08"))
+     console.log(new Date(b.toISOString().replace(/Z/,"+00")))
+
      var e = new Date ();
      var n = new Date ();
 
