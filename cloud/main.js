@@ -515,13 +515,18 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   let _user = req.object
   var result = []
   let parents = []
-  for (let i  of await getUsers(result,_user)){
+  try{
+  	for (let i  of await getUsers(result,_user)){
   	parents.push(i.id)
   	if(i.id === _user.get('parent').id){
   		await i.save({workers:(i.get('workers') || 0) + 1},{useMasterKey:true})
-  	}
-  }
-  req.object.set('parents',parents)
+	  	}
+	  }
+	  req.object.set('parents',parents)
+	}catch(e){
+		console.log(e.message)
+	}
+  
 });
 
 Parse.Cloud.beforeDelete(Parse.User, async (req) => {
@@ -533,7 +538,7 @@ Parse.Cloud.beforeDelete(Parse.User, async (req) => {
   		}
   }catch(e) {
 
-		}
+  }
 });
 
 async function getAllReportDict(){
