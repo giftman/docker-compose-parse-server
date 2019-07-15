@@ -667,7 +667,7 @@ function getLocalTime(){
 	var localDate = new Date();
 	var localTime = localDate.getTime();
 	var localOffset = localDate.getTimezoneOffset()*60*1000;
-	new Date(localTime + localOffset);
+	return new Date(localTime + localOffset);
 }
 
 async function getChildUser(user){
