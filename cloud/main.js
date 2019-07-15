@@ -531,7 +531,9 @@ Parse.Cloud.beforeDelete(Parse.User, async (req) => {
 	  	let parent = await _user.get('parent').fetch()
 	    await parent.save({workers:(parent.get('workers') || 1) - 1},{useMasterKey:true})
   		}
-  }
+  }catch(e) {
+
+		}
 });
 
 async function getAllReportDict(){
