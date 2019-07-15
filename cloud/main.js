@@ -642,7 +642,7 @@ function time_range(beginTime, endTime) {
          return false;
      }
 
-     var b = new Date ();
+     var b = new Date (new Date().toUTCString());
      var e = new Date ();
      var n = new Date ();
 
@@ -654,7 +654,9 @@ function time_range(beginTime, endTime) {
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
+     	 console.log(b)
      	 console.log(n)
+     	 console.log(e)
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
