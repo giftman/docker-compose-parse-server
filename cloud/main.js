@@ -642,12 +642,7 @@ function time_range(beginTime, endTime) {
          return false;
      }
 
-     var b = new Date()
-     console.log(b.toISOString())
-     console.log(b.toISOString().replace(/Z/,"+00"))
-     console.log(b.toISOString().replace(/Z/,"+08"))
-     console.log(new Date(b.toISOString().replace(/Z/,"+00")))
-
+     var b = getLocalTime()
      var e = new Date ();
      var n = new Date ();
 
@@ -665,6 +660,13 @@ function time_range(beginTime, endTime) {
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
+}
+
+function getLocalTime(){
+	var localDate = new Date(new Date().toUTCString());
+	var localTime = localDate.getTime();
+	var localOffset = localDate.getTimezoneOffset()*60*1000;
+	new Date(localTime + localOffset);
 }
 
 async function getChildUser(user){
