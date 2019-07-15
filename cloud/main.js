@@ -241,7 +241,7 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
     var allRevenue = new Parse.Query(Revenue);
     //只算当月
     allRevenue.greaterThan("createdAt", getMonthStartDate());
-    
+    let _leiji = 0
     const results = await allRevenue.find({useMasterKey: true})
 	for(var i=0;i < results.length;i++){
 		// console.log(results[i])
