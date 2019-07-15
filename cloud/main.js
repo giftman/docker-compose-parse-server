@@ -246,10 +246,11 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 	for(var i=0;i < results.length;i++){
 		// console.log(results[i])
 		//Todo累计是加上一个月的比较方便
+		let _month = results[i].get('monthTotal')
 		var lastMonth = new Parse.Query(Revenue)
 		lastMonth.equalTo('month', getMonthTime(true))
 		lastMonth.equalTo('parent', results[i].get('parent'))
-		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
+		let lastMonthRevenue = await lastMonth.first({useMasterKey:true})
 		if(lastMonthRevenue){
 			_leiji = (parseFloat(lastMonthRevenue.get('total'))|| 0)+ _month
 		}else{
