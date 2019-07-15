@@ -643,8 +643,8 @@ function time_range(beginTime, endTime) {
      }
 
      var b = new Date (new Date().toUTCString());
-     var e = new Date ();
-     var n = new Date ();
+     var e = new Date (new Date().toUTCString());
+     var n = new Date (new Date().toUTCString());
 
      b.setHours (strb[0]);
      b.setMinutes (strb[1]);
