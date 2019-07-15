@@ -656,7 +656,7 @@ function time_range(beginTime, endTime) {
      } else {
      	 console.log(b)
      	 console.log(n)
-     	 console.log(e)
+     	 console.log(e.toUTCString())
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
