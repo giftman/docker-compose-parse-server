@@ -250,17 +250,14 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 		var lastMonth = new Parse.Query(Revenue)
 		lastMonth.equalTo('month', getMonthTime(true))
 		lastMonth.equalTo('parent', results[i].get('parent'))
-		console.log('everydayResetNum End')
 
 		let lastMonthRevenue = await lastMonth.first({useMasterKey:true})
-		console.log(_month)
-		console.log(lastMonthRevenue)
 		if(lastMonthRevenue){
 			_leiji = (parseFloat(lastMonthRevenue.get('total'))||0)+ _month
 		}else{
 			_leiji = _month
 		}
-		await results[i].save({total:_leiji.toFixed(2)},{useMasterKey: true})
+		await results[i].save({total:_leiji},{useMasterKey: true})
 	}
 	console.log('everydayResetNum End')
 });
