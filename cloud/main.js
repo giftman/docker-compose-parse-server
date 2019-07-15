@@ -41,6 +41,10 @@ Parse.Cloud.define("updateUser", async (req,res) => {
 });
 
 Parse.Cloud.define("delUser", async (req,res) => {
+	let sessionToken = req.user.get("sessionToken");
+	if( !sessionToken) return {
+		"message": "参数不齐"
+	}
 	let query = new Parse.Query(Parse.User);
 	query.equalTo("objectId", req.params.id);
 	query.limit(1);
@@ -547,7 +551,7 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   req.object.set('parents',parents)
 });
 
-Parse.Cloud.beforeDelete(Parse.User, async (request) => {
+Parse.Cloud.beforeDelete(Parse.User, async (req) => {
   let _user = req.object
   if(_user.get('parent')){
   	let parent = await _user.get('parent').fetch()
