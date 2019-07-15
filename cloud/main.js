@@ -229,11 +229,10 @@ Parse.Cloud.job("createRatoRevenue", async (req,res) => {
 });
 
 Parse.Cloud.job("everydayResetNum", async (req,res) => {
-	let allUser = await getAllUsers()
-	let revenueDict = await getRevenueDict()
+	let reports = await getAllReportDict()
 	//每天凌晨开始重算每天收益
-    for(let r in revenueDict){
-    	await revenueDict[r].save({
+    for(let r in reports){
+    	await reports[r].save({
     		todayuphours:0,
     	},{useMasterKey:true})
     }
