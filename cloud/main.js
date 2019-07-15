@@ -54,6 +54,26 @@ Parse.Cloud.define("delUser", async (req,res) => {
 	return 1
 });
 
+Parse.Cloud.define("removeUser", async (req,res) => {
+    let userId = req.user.id
+
+	let sessionToken = req.user.get("sessionToken");
+	if(!userId || !sessionToken) return {
+		"message": "参数不齐"
+	}
+
+	let query = new Parse.Query(Parse.User);
+	query.equalTo("parents", userId);
+	query.select("name","idcard","sex","age","phone","education","address","person_detail","des","target_job","night_job","target_salary","percentage","job");
+	query.limit(1);
+	try {
+		var objs = await query.find({useMasterKey: true});
+		await objs[0].destroy({useMasterKey: true})
+		return 1
+	} catch(e) {
+		return e.message
+	}
+});
 Parse.Cloud.define("getMyUser", async (req,res) => {
     let userId = req.user.id
 
