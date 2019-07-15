@@ -214,7 +214,6 @@ Parse.Cloud.define("calRevenue", async (req,res) => {
 		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
 		if(lastMonthRevenue){
 			_leiji = (parseFloat(lastMonthRevenue.get('total'))|| 0)+ _month
-
 		}else{
 			_leiji = _month
 		}
@@ -236,10 +235,34 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
     		todayuphours:0,
     	},{useMasterKey:true})
     }
+
+    //每天算一下累计收入
+    var Revenue = Parse.Object.extend("Revenue");
+    var allRevenue = new Parse.Query(Revenue);
+    //只算当月
+    allRevenue.greaterThan("createdAt", getMonthStartDate());
+    
+    const results = await allRevenue.find({useMasterKey: true})
+	for(var i=0;i < results.length;i++){
+		// console.log(results[i])
+		//Todo累计是加上一个月的比较方便
+		var lastMonth = new Parse.Query(Revenue)
+		lastMonth.equalTo('month', getMonthTime(true))
+		lastMonth.equalTo('parent', results[i].get('parent'))
+		lastMonthRevenue = await lastMonth.first({useMasterKey:true})
+		if(lastMonthRevenue){
+			_leiji = (parseFloat(lastMonthRevenue.get('total'))|| 0)+ _month
+		}else{
+			_leiji = _month
+		}
+		await results[i].save({total:_leiji.toFixed(2)},{useMasterKey: true})
+	}
+	console.log('everydayResetNum End')
 });
 
 Parse.Cloud.job("everyMonthReset", async (req,res) => {
 	//nothing now
+
 });
 
 
