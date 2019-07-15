@@ -642,21 +642,25 @@ function time_range(beginTime, endTime) {
          return false;
      }
 
-     var b = new Date (new Date().toUTCString());
-     var e = new Date (new Date().toUTCString());
-     var n = new Date (new Date().toUTCString());
+     var b = new Date ();
+     var e = new Date ();
+     var n = new Date ();
 
      b.setHours (strb[0]);
      b.setMinutes (strb[1]);
      e.setHours (stre[0]);
      e.setMinutes (stre[1]);
 
+     b = new Date(b.toUTCString())
+     e = new Date(e.toUTCString())
+     n = new Date(n.toUTCString())
+
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
      	 console.log(b)
      	 console.log(n)
-     	 console.log(e.toUTCString())
+     	 console.log(e)
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
