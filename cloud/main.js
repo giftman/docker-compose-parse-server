@@ -381,15 +381,16 @@ function sleep(delay) {
 }
 
 Parse.Cloud.afterSave("Record", async (req) => {
-	if(!req.user){
-		break;
-	}
+if(req.user){
+
+	
 	if(!req.object.get('action')){
 		//全部算完把上班状态改掉
 	  	await req.user.save({'status':false},{useMasterKey:true})
 	}else{
 	  	await req.user.save({'status':true,'uptimes':(req.user.get('uptimes') || 0) + 1},{useMasterKey:true})
 	}
+}
 });
 
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
