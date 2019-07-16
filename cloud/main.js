@@ -225,6 +225,11 @@ Parse.Cloud.job("createRatoRevenue", async (req,res) => {
     user.id = '08haeUpjaY'
     await saveAllRato(user)
 });
+Parse.Cloud.define("createRatoRevenue", async (req,res) => {
+    var user = new Parse.User();
+    user.id = '08haeUpjaY'
+    await saveAllRato(user)
+});
 
 Parse.Cloud.job("everydayResetNum", async (req,res) => {
 	let reports = await getAllReportDict()
