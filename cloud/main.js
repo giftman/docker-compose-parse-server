@@ -403,14 +403,14 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
   try{
 	  	for (let i  of await getUsers(result,_user)){
 		  	parents.push(i.id)
-		  	if(i.id === _user.get('parent').id){
-		  		console.log(userId)
+		  	// if(i.id === _user.get('parent').id){
+		  	// 	console.log(userId)
 		  		let wDict = i.get('workers') || {}
 		  		if(!wDict[userId]){
 		  			wDict[userId] = 1
 		  			await i.save({workers:wDict},{useMasterKey:true})
 		  		}
-			}
+			// }
 		}
 		 req.object.set('parents',parents)
 	}catch(e){
@@ -421,16 +421,19 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 
 Parse.Cloud.beforeDelete(Parse.User, async (req) => {
   let _user = req.object
+  let result = []
   try {
-	  	if(_user.get('parent')){
-	  		let parent = await _user.get('parent').fetch()
-	  		let wDict = parent.get('workers') || {}
-	  		let idcard = _user.get('idcard')
-	  		if(wDict[idcard]){
-	  			delete wDict[idcard]
-	  			await parent.save({workers:wDict},{useMasterKey:true})
-	  		}
-  		}
+  		for (let i  of await getUsers(result,_user)){
+		  	// if(i.id === _user.get('parent').id){
+		  	// 	console.log(userId)
+		  		let wDict = i.get('workers') || {}
+		  		let idcard = _user.get('idcard')
+		  		if(wDict[idcard]){
+		  			delete wDict[idcard]
+		  			await i.save({workers:wDict},{useMasterKey:true})
+	  			}
+			// }
+		}
   }catch(e) {
 
   }
