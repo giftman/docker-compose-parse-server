@@ -68,6 +68,7 @@ Parse.Cloud.define("getMyUser", async (req,res) => {
 
 	let query = new Parse.Query(Parse.User);
 	query.equalTo("parents", userId);
+	query.descending("createdAt");
 	query.select("name","idcard","sex","age","phone","education","address","person_detail","des","target_job","night_job","target_salary","percentage","job","workers");
 	query.limit(300);
 	try {
