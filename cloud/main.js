@@ -366,8 +366,10 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				var origin_today_revenune = parseFloat(revenueDict[r].get('today'))
 
 				for(let l in _list){
-					_month = _month + _list[l].calRevenue
-					_today = _today + _list[l].dayRevenue
+					if(_list[l].calRevenue){
+						_month = _month + _list[l].calRevenue
+						_today = _today + _list[l].dayRevenue
+					}
 				}
 				// console.log('----------------update RevenueTotal Data------------')
 				// console.log(_month,_today)
