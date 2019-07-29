@@ -420,7 +420,7 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 		  		}
 			// }
 		}
-		 req.object.set('parents',parents)
+		req.object.set('parents',parents)
 	}catch(e){
 		console.log(e.message)
 	}
@@ -569,6 +569,7 @@ async function saveAllRato(user){
     console.log('createRatoRevenue')
 	let jobs = await getJobDict()
 	for(let i of child_user_list){
+		console.log('------user id ----' + i.id + '-------------user id------')
 		if(i.get('job')){
 			let jobRevenue = jobs[i.get('job').id].get('revenue')
 			await saveRato(i,jobRevenue)
