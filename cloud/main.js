@@ -571,8 +571,12 @@ async function saveAllRato(user){
 	for(let i of child_user_list){
 		console.log('------user id ----' + i.id + '-------------user id------')
 		if(i.get('job')){
-			let jobRevenue = jobs[i.get('job').id].get('revenue')
-			await saveRato(i,jobRevenue)
+			if(jobs[i.get('job').id]){
+				let jobRevenue = jobs[i.get('job').id].get('revenue')
+				await saveRato(i,jobRevenue)
+			}else{
+				console.log('err not job here')
+			}
 		}
 	}
 }
