@@ -424,6 +424,7 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 	}catch(e){
 		console.log(e.message)
 	}
+ console.log('End beforeSave User')
   
 });
 
