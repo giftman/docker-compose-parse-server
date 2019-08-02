@@ -269,7 +269,7 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 
 Parse.Cloud.job("everyMonthReset", async (req,res) => {
 	//nothing now
-
+	console.log('everyMonthResetNum End')
 });
 
 
