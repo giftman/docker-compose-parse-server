@@ -294,9 +294,17 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				if(worktime){
 				    let time_span = worktime.split('|')
 					is_working_time = time_range(time_span[0],time_span[1])
+					//帮忘记打卡的员工自动下班
+					if(status === true && !is_working_time){
+						if(time_range_is_over_four_hour(time_span[1])){
+							console.log("is over 4 hours,auto reset to downtime")
+							req.user.save({'status':false},{useMasterKey:true})
+						}
+					}
 				}else{
 					is_working_time = false
 				}
+
 				if(status === true 
 					&& is_working_time 
 					&& job){
@@ -548,6 +556,25 @@ function time_range(beginTime, endTime) {
          return true;
      } else {
      	 
+         console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
+         return false;
+     }
+}
+
+function time_range_is_over_four_hour(endTime) {
+
+     var stre = endTime.split (":");
+     if (stre.length != 2) {
+         return false;
+     }
+     var e = new Date ();
+     var n = new Date ();
+
+     e.setHours (stre[0]);
+     e.setMinutes (stre[1]);
+     if (n.getTime () - e.getTime () - 1000*60*60*4 > 0) {
+         return true;
+     } else {
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
