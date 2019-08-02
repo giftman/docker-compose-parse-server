@@ -322,11 +322,13 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					//uphours 单位分钟
 					let uphours = (report.get('uphours') || 0) + 1
 					let todayuphours = (report.get('todayuphours')||0) + 1
+					let user_cal_uptimes = Object.keys(user.get('uptimes')).length
 					report.save({
 						todayuphours,
 						uphours,
 						calIncome: (uphours * job.get('dincome')/60).toFixed(2),
-						uphoursString:mssToHours(uphours*60000)[0]
+						uphoursString:mssToHours(uphours*60000)[0],
+						uptimes:user_cal_uptimes
 					},{useMasterKey: true})
 
 
@@ -355,7 +357,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						console.log('hourRevenue:' + hourRevenue[user.id] + '|todayuphours:' + todayuphours + '|uphours:' + uphours)
 						let dayRevenue = hourRevenue[user.id]*100000*todayuphours/(100000*60)
 						let calRevenue = hourRevenue[user.id]*100000*uphours/(100000*60)
-						let calData = {dayRevenue,calRevenue,name:user.get('name'),uptimes:user.get('uptimes'),parents:user.get('parents'),status:user.get('status')}
+						let calData = {dayRevenue,calRevenue,name:user.get('name'),uptimes:user_cal_uptimes,parents:user.get('parents'),status:user.get('status')}
 						console.log('----------------update HourRevenue Result------------')
 						console.log(calData)
 						console.log('----------------update HourRevenue Result End------------')
@@ -405,7 +407,12 @@ if(req.user){
 		//全部算完把上班状态改掉
 	  	await req.user.save({'status':false},{useMasterKey:true})
 	}else{
-	  	await req.user.save({'status':true,'uptimes':(req.user.get('uptimes') || 0) + 1},{useMasterKey:true})
+		let uptimes_dict = req.user.get('uptimes') || {}
+		let day = new Date().getDate()
+		if(!uptimes_dict[day]){
+			uptimes_dict[day] = 1
+		}
+	  	await req.user.save({'status':true,'uptimes':uptimes_dict},{useMasterKey:true})
 	}
 }
 });
