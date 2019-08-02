@@ -297,8 +297,9 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					//帮忘记打卡的员工自动下班
 					if(status === true && !is_working_time){
 						if(time_range_is_over_four_hour(time_span[1])){
+							console.log(user.id)
 							console.log("is over 4 hours,auto reset to downtime")
-							req.user.save({'status':false},{useMasterKey:true})
+							user.save({'status':false},{useMasterKey:true})
 						}
 					}
 				}else{
