@@ -305,6 +305,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 				}else{
 					is_working_time = false
 				}
+			    console.log('now is :' + user.id)
 
 				if(status === true 
 					&& is_working_time 
