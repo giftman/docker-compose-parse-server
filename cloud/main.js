@@ -288,6 +288,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			console.log('updateReportWorkTimeOneMinute')
 			try {
 				for(let user of allUser){
+					console.log('now is :' + user.id)
 					let status = user.get('status') || false
 					let worktime = user.get('worktime') 
 					let job = user.get('job')
