@@ -325,7 +325,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						//uphours 单位分钟
 						let uphours = (report.get('uphours') || 0) + 1
 						let todayuphours = (report.get('todayuphours')||0) + 1
-						let user_cal_uptimes = Object.keys(user.get('uptimes')).length
+						let user_cal_uptimes = Object.keys(user.get('uptimes') || {}).length
 						report.save({
 							todayuphours,
 							uphours,
