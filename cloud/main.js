@@ -286,91 +286,96 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			let revenueDict = await getRevenueDict()
 			let jobDict = await getJobDict()
 			console.log('updateReportWorkTimeOneMinute')
-			for(let user of allUser){
-				let status = user.get('status') || false
-				let worktime = user.get('worktime') 
-				let job = user.get('job')
-				let is_working_time = true
-				if(worktime){
-				    let time_span = worktime.split('|')
-					is_working_time = time_range(time_span[0],time_span[1])
-					//帮忘记打卡的员工自动下班
-					if(status === true && !is_working_time){
-						if(time_range_is_over_four_hour(time_span[1])){
-							console.log(user.id)
-							console.log("is over 4 hours,auto reset to downtime")
-							user.save({'status':false},{useMasterKey:true})
+			try {
+				for(let user of allUser){
+					let status = user.get('status') || false
+					let worktime = user.get('worktime') 
+					let job = user.get('job')
+					let is_working_time = true
+					if(worktime){
+						let time_span = worktime.split('|')
+						is_working_time = time_range(time_span[0],time_span[1])
+						//帮忘记打卡的员工自动下班
+						if(status === true && !is_working_time){
+							if(time_range_is_over_four_hour(time_span[1])){
+								console.log(user.id)
+								console.log("is over 4 hours,auto reset to downtime")
+								user.save({'status':false},{useMasterKey:true})
+							}
 						}
-					}
-				}else{
-					is_working_time = false
-				}
-			    console.log('now is :' + user.id)
-
-				if(status === true 
-					&& is_working_time 
-					&& job){
-					job = jobDict[job.id]
-					let report
-					if(reportDict[user.id]){
-						report = reportDict[user.id]
 					}else{
-						var Report = Parse.Object.extend("Report");
-						report = new Report()
-						report.set('parent',user)
-						report.set('month',getMonthTime())
+						is_working_time = false
 					}
-					//uphours 单位分钟
-					let uphours = (report.get('uphours') || 0) + 1
-					let todayuphours = (report.get('todayuphours')||0) + 1
-					let user_cal_uptimes = Object.keys(user.get('uptimes')).length
-					report.save({
-						todayuphours,
-						uphours,
-						calIncome: (uphours * job.get('dincome')/60).toFixed(2),
-						uphoursString:mssToHours(uphours*60000)[0],
-						uptimes:user_cal_uptimes
-					},{useMasterKey: true})
-
-
-					let parentsId = user.get('parents')
-					console.log(parentsId)
-					for(let p of parentsId){
-						console.log(p)
-						var _u = userDict[p]
-						console.log(_u)
-
-						let newRevenue
-						if(revenueDict[p]){
-							newRevenue = revenueDict[p]
+					console.log('now is :' + user.id)
+	
+					if(status === true 
+						&& is_working_time 
+						&& job){
+						job = jobDict[job.id]
+						let report
+						if(reportDict[user.id]){
+							report = reportDict[user.id]
 						}else{
-							var Revenue = Parse.Object.extend("Revenue");
-							newRevenue = new Revenue()
-							newRevenue.set('parent',_u)
-							newRevenue.set('month',getMonthTime())
+							var Report = Parse.Object.extend("Report");
+							report = new Report()
+							report.set('parent',user)
+							report.set('month',getMonthTime())
 						}
-						let revenue_list = newRevenue.get('list') || {}
-						// if(!revenue_list[_u.id]){
-						// 	revenue_list[user.id] = {}
-						// }
-						let hourRevenue = _u.get('hourRevenue') || {}
-						console.log('----------------update HourRevenue Data------------')
-						console.log('hourRevenue:' + hourRevenue[user.id] + '|todayuphours:' + todayuphours + '|uphours:' + uphours)
-						let dayRevenue = hourRevenue[user.id]*100000*todayuphours/(100000*60)
-						let calRevenue = hourRevenue[user.id]*100000*uphours/(100000*60)
-						let calData = {dayRevenue,calRevenue,name:user.get('name'),uptimes:user_cal_uptimes,parents:user.get('parents'),status:user.get('status')}
-						console.log('----------------update HourRevenue Result------------')
-						console.log(calData)
-						console.log('----------------update HourRevenue Result End------------')
-						revenue_list[user.id] = calData
-						// }
-						
-						newRevenue.set('list',revenue_list)
-						revenueDict[p] = newRevenue
-
+						//uphours 单位分钟
+						let uphours = (report.get('uphours') || 0) + 1
+						let todayuphours = (report.get('todayuphours')||0) + 1
+						let user_cal_uptimes = Object.keys(user.get('uptimes')).length
+						report.save({
+							todayuphours,
+							uphours,
+							calIncome: (uphours * job.get('dincome')/60).toFixed(2),
+							uphoursString:mssToHours(uphours*60000)[0],
+							uptimes:user_cal_uptimes
+						},{useMasterKey: true})
+	
+	
+						let parentsId = user.get('parents')
+						console.log(parentsId)
+						for(let p of parentsId){
+							console.log(p)
+							var _u = userDict[p]
+							console.log(_u)
+	
+							let newRevenue
+							if(revenueDict[p]){
+								newRevenue = revenueDict[p]
+							}else{
+								var Revenue = Parse.Object.extend("Revenue");
+								newRevenue = new Revenue()
+								newRevenue.set('parent',_u)
+								newRevenue.set('month',getMonthTime())
+							}
+							let revenue_list = newRevenue.get('list') || {}
+							// if(!revenue_list[_u.id]){
+							// 	revenue_list[user.id] = {}
+							// }
+							let hourRevenue = _u.get('hourRevenue') || {}
+							console.log('----------------update HourRevenue Data------------')
+							console.log('hourRevenue:' + hourRevenue[user.id] + '|todayuphours:' + todayuphours + '|uphours:' + uphours)
+							let dayRevenue = hourRevenue[user.id]*100000*todayuphours/(100000*60)
+							let calRevenue = hourRevenue[user.id]*100000*uphours/(100000*60)
+							let calData = {dayRevenue,calRevenue,name:user.get('name'),uptimes:user_cal_uptimes,parents:user.get('parents'),status:user.get('status')}
+							console.log('----------------update HourRevenue Result------------')
+							console.log(calData)
+							console.log('----------------update HourRevenue Result End------------')
+							revenue_list[user.id] = calData
+							// }
+							
+							newRevenue.set('list',revenue_list)
+							revenueDict[p] = newRevenue
+	
+						}
 					}
 				}
+			} catch (error) {
+				console.log(error.message)
 			}
+			
 			for (let r in revenueDict){
 				var _today = 0
 				var _month = 0
