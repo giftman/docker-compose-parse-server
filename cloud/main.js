@@ -263,7 +263,13 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 			_leiji = _month
 		}
 		_leiji = _leiji + ''
-		await results[i].save({total:_leiji,today:'0',list:{}},{useMasterKey: true})
+		let _list = results[i].get('list') || {}
+		for(let l in _list){
+			if(_list[l].calRevenue){
+				_list[l].dayRevenue  = 0
+			}
+		} 
+		await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
 	}
 	console.log('everydayResetNum End')
 });
