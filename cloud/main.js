@@ -310,6 +310,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 								console.log(user.id)
 								console.log("is over 4 hours,auto reset to downtime")
 								user.save({'status':false},{useMasterKey:true})
+								status = false
 							}
 						}
 					}else{
@@ -377,6 +378,22 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 							newRevenue.set('list',revenue_list)
 							revenueDict[p] = newRevenue
 	
+						}
+					}else{
+						let parentsId = user.get('parents')
+						for(let p of parentsId){
+							let newRevenue
+							if(revenueDict[p]){
+								newRevenue = revenueDict[p]
+								let revenue_list = newRevenue.get('list') || {}
+								calData = revenue_list[user.id]
+								calData['status'] = false
+								revenue_list[user.id] = calData
+								// }
+								
+								newRevenue.set('list',revenue_list)
+								revenueDict[p] = newRevenue
+							}
 						}
 					}
 				} catch (error) {
