@@ -277,6 +277,11 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 Parse.Cloud.job("everyMonthReset", async (req,res) => {
 	//nothing now
 	console.log('everyMonthResetNum End')
+	//重置上班天数
+	let allUser = await getAllUsers()
+	for(let user of allUser){
+		await user.save({'uptimes':{}},{useMasterKey:true})
+	}
 });
 
 
@@ -309,7 +314,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 							if(time_range_is_over_four_hour(time_span[1])){
 								console.log(user.id)
 								console.log("is over 4 hours,auto reset to downtime")
-								user.save({'status':false},{useMasterKey:true})
+								await user.save({'status':false},{useMasterKey:true})
 								status = false
 							}
 						}
