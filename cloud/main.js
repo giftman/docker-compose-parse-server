@@ -388,16 +388,16 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						let parentsId = user.get('parents')
 						for(let p of parentsId){
 							let newRevenue
-							if(revenueDict[p] && revenue_list[user.id]){
+							if(revenueDict[p]){
 								newRevenue = revenueDict[p]
 								let revenue_list = newRevenue.get('list') || {}
 								calData = revenue_list[user.id]
-								calData['status'] = false
-								revenue_list[user.id] = calData
-								// }
-								
-								newRevenue.set('list',revenue_list)
-								revenueDict[p] = newRevenue
+								if(calData){
+									calData['status'] = false
+									revenue_list[user.id] = calData
+									newRevenue.set('list',revenue_list)
+									revenueDict[p] = newRevenue
+								}
 							}
 						}
 					}
