@@ -617,7 +617,8 @@ function time_range_is_over_four_hour(endTime) {
 
      e.setHours (stre[0]);
      e.setMinutes (stre[1]);
-     if (n.getTime () - e.getTime () - 1000*60*60*4 > 0) {
+     //过半小时自动下班
+     if (n.getTime () - e.getTime () - 1000*60*60/2 > 0) {
          return true;
      } else {
          console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
