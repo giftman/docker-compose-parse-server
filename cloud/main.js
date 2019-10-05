@@ -311,7 +311,7 @@ Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
 			}
 		} 
 		console.log('total: ' + _leiji)
-		console.log('list: ' + _list)
+		outputObj(_list)
 		//await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
 	}
 	console.log('everydayResetTestNum End')
@@ -344,7 +344,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 			
 			for(let user of allUser){
 					try {
-					console.log('now is :' + user.id)
+					// console.log('now is :' + user.id)
 					let status = user.get('status') || false
 					let worktime = user.get('worktime') 
 					let job = user.get('job')
@@ -445,6 +445,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						}
 					}
 				} catch (error) {
+					console.log('now is :' + user.id)
 					console.log(error.message)
 				}
 			}
@@ -748,6 +749,13 @@ async function saveRato(user,jobRevenue){
 			}
 			
 		
+}
+function outputObj(obj) {
+	var description = "";
+	for (var i in obj) {
+		description += i + " = " + obj[i] + "\n";
+	}
+	console.log(description)
 }
 
 function getMonthTime(lastMonth){
