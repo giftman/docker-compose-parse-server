@@ -273,6 +273,49 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 	}
 	console.log('everydayResetNum End')
 });
+Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
+	let reports = await getAllReportDict()
+	//每天凌晨开始重算每天收益
+    for(let r in reports){
+    	await reports[r].save({
+    		todayuphours:0,
+    	},{useMasterKey:true})
+    }
+
+    //每天算一下累计收入
+    var Revenue = Parse.Object.extend("Revenue");
+    var allRevenue = new Parse.Query(Revenue);
+    //只算当月
+    allRevenue.greaterThan("createdAt", getMonthStartDate());
+    let _leiji = 0
+	const results = await allRevenue.find({useMasterKey: true})
+	for(var i=0;i < results.length;i++){
+		// console.log(results[i])
+		//Todo累计是加上一个月的比较方便
+		let _month = results[i].get('monthTotal') || 0
+		var lastMonth = new Parse.Query(Revenue)
+		lastMonth.equalTo('month', getMonthTime(true))
+		lastMonth.equalTo('parent', results[i].get('parent'))
+
+		let lastMonthRevenue = await lastMonth.first({useMasterKey:true})
+		if(lastMonthRevenue){
+			_leiji = (parseFloat(lastMonthRevenue.get('total'))||0)+ parseFloat(_month)
+		}else{
+			_leiji = _month
+		}
+		_leiji = _leiji + ''
+		let _list = results[i].get('list') || {}
+		for(let l in _list){
+			if(_list[l].calRevenue){
+				_list[l].dayRevenue  = 0
+			}
+		} 
+		console.log('total: ' + _leiji)
+		console.log('list: ' + _list)
+		//await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
+	}
+	console.log('everydayResetTestNum End')
+});
 
 Parse.Cloud.job("everyMonthReset", async (req,res) => {
 	//nothing now
@@ -349,11 +392,11 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 	
 	
 						let parentsId = user.get('parents')
-						console.log(parentsId)
+						// console.log(parentsId)
 						for(let p of parentsId){
-							console.log(p)
+							// console.log(p)
 							var _u = userDict[p]
-							console.log(_u)
+							// console.log(_u)
 	
 							let newRevenue
 							if(revenueDict[p]){
@@ -369,14 +412,14 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 							// 	revenue_list[user.id] = {}
 							// }
 							let hourRevenue = _u.get('hourRevenue') || {}
-							console.log('----------------update HourRevenue Data------------')
-							console.log('hourRevenue:' + hourRevenue[user.id] + '|todayuphours:' + todayuphours + '|uphours:' + uphours)
+							// console.log('----------------update HourRevenue Data------------')
+							// console.log('hourRevenue:' + hourRevenue[user.id] + '|todayuphours:' + todayuphours + '|uphours:' + uphours)
 							let dayRevenue = hourRevenue[user.id]*100000*todayuphours/(100000*60)
 							let calRevenue = hourRevenue[user.id]*100000*uphours/(100000*60)
 							let calData = {dayRevenue,calRevenue,name:user.get('name'),uptimes:user_cal_uptimes,parents:user.get('parents'),status:user.get('status'),jobName:job.get('name')}
-							console.log('----------------update HourRevenue Result------------')
-							console.log(calData)
-							console.log('----------------update HourRevenue Result End------------')
+							// console.log('----------------update HourRevenue Result------------')
+							// console.log(calData)
+							// console.log('----------------update HourRevenue Result End------------')
 							revenue_list[user.id] = calData
 							// }
 							
@@ -457,7 +500,7 @@ if(req.user){
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
   console.log('beforeSave User')
   const _user = req.object
-  console.log(req.object)
+  // console.log(req.object)
   const userId = req.object.get('idcard')
   var result = []
   let parents = []
@@ -594,9 +637,9 @@ function time_range(beginTime, endTime) {
      b.setMinutes (strb[1]);
      e.setHours (stre[0]);
      e.setMinutes (stre[1]);
-     console.log(b)
-     console.log(n)
-     console.log(e)
+     // console.log(b)
+     // console.log(n)
+     // console.log(e)
      if (n.getTime () - b.getTime () > 0 && n.getTime () - e.getTime () < 0) {
          return true;
      } else {
@@ -637,12 +680,12 @@ async function getChildUser(user){
 
 async function saveAllRato(user){
 	var child_user_list = await getChildUser(user)
-	console.log('----------------It have these workers------------')
-	console.log(child_user_list)
-    console.log('createRatoRevenue')
+	// console.log('----------------It have these workers------------')
+	// console.log(child_user_list)
+ //    console.log('createRatoRevenue')
 	let jobs = await getJobDict()
 	for(let i of child_user_list){
-		console.log('------user id ----' + i.id + '-------------user id------')
+		// console.log('------user id ----' + i.id + '-------------user id------')
 		if(i.get('job')){
 			if(jobs[i.get('job').id]){
 				let jobRevenue = jobs[i.get('job').id].get('revenue')
@@ -658,11 +701,11 @@ async function saveAllRato(user){
 async function saveRato(user,jobRevenue){
 			let result = []
 			result = await getUsers(result,user)
-			console.log('-------user id ------------')
-			console.log(user.id)
-			console.log('----------------It have these parents------------')
-			console.log(result)
-			console.log('----------------Begin Cal------------')
+			// console.log('-------user id ------------')
+			// console.log(user.id)
+			// console.log('----------------It have these parents------------')
+			// console.log(result)
+			// console.log('----------------Begin Cal------------')
 			//计算 revenue 并保存到父user,自己下面没有工人是没有Revenue的
 			const userId = user.id + ""
 			//如果只有一个爷级是管理员
@@ -685,19 +728,19 @@ async function saveRato(user,jobRevenue){
 					}
 					//营收 等于 岗位营收 * 多级分成 * 时间
 					let hourRevenue = (jobRevenue*100 * rato*100 )/10000
-					console.log('revenue:' + hourRevenue + '|rato:' + rato )
+					// console.log('revenue:' + hourRevenue + '|rato:' + rato )
 
 					let revenue_list = _u.get('hourRevenue') || {}
 					revenue_list[userId] = hourRevenue
 					// }
-					console.log('----------------End------------')
-					console.log('-------revenue_list------------')
-					console.log(revenue_list)
-					console.log('-------parent id ------------')
-					console.log(_u.id)
-					console.log('-------user id ------------')
-					console.log(userId)
-					console.log('----------------End------------')
+					// console.log('----------------End------------')
+					// console.log('-------revenue_list------------')
+					// console.log(revenue_list)
+					// console.log('-------parent id ------------')
+					// console.log(_u.id)
+					// console.log('-------user id ------------')
+					// console.log(userId)
+					// console.log('----------------End------------')
 					// newRevenue.set('hourRevenue',revenue_list)
 					await _u.save({'hourRevenue':revenue_list},{useMasterKey:true})
 					user = _u
