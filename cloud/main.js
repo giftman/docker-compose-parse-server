@@ -290,10 +290,11 @@ Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
 
     let _leiji = 0
 	const results = await allRevenue.find({useMasterKey: true})
-	console.log('result.length' + results.length)
+	console.log('result.length : ' + results.length)
 	for(var i=0;i < results.length;i++){
 		// console.log(results[i])
 		//Todo累计是加上一个月的比较方便
+
 		let _month = results[i].get('monthTotal') || 0
 		var lastMonth = new Parse.Query(Revenue)
 		lastMonth.equalTo('month', getMonthTime(true))
@@ -667,7 +668,7 @@ function time_range_is_over_four_hour(endTime) {
      if (n.getTime () - e.getTime () - 1000*60*60/2 > 0) {
          return true;
      } else {
-         console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
+         // console.log("now time is " + n.getHours () + ":" + n.getMinutes () + ",not in the range");
          return false;
      }
 }
@@ -755,7 +756,7 @@ async function saveRato(user,jobRevenue){
 function outputObj(obj) {
 	var description = "";
 	for (var i in obj) {
-		description += i + " = " + obj[i]['calRevenue'] + "|" + obj[i]['name']+ "|" + obj[i]['uptimes']+ "|" + obj[i]['status'] + "\n";
+		description += i + " = " + obj[i].id + "|"+ obj[i]['calRevenue'] + "|" + obj[i]['name']+ "|" + obj[i]['uptimes']+ "|" + obj[i]['status'] + "\n";
 	}
 	console.log(description)
 }
