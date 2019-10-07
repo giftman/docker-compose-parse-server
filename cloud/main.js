@@ -314,6 +314,7 @@ Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
 			}
 		} 
 		console.log('total: ' + _leiji)
+		console.log('parent: ' + results[i].get('parent'))
 		outputObj(_list)
 		//await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
 	}
@@ -756,7 +757,7 @@ async function saveRato(user,jobRevenue){
 function outputObj(obj) {
 	var description = "";
 	for (var i in obj) {
-		description += i + " = " + obj[i]['objectId'] + "|"+ obj[i]['calRevenue'] + "|" + obj[i]['name']+ "|" + obj[i]['uptimes']+ "|" + obj[i]['status'] + "\n";
+		description += i + " = " obj[i]['calRevenue'] + "|" + obj[i]['name']+ "|" + obj[i]['uptimes']+ "|" + obj[i]['status'] + "\n";
 	}
 	console.log(description)
 }
