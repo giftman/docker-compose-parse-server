@@ -314,7 +314,7 @@ Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
 			}
 		} 
 		console.log('total: ' + _leiji)
-		console.log('parent: ' + results[i].get('parent'))
+		console.log('parent: ' + results[i].get('parent').id)
 		outputObj(_list)
 		//await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
 	}
