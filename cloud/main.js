@@ -756,7 +756,7 @@ async function saveRato(user,jobRevenue){
 function outputObj(obj) {
 	var description = "";
 	for (var i in obj) {
-		description += i + " = " + obj[i].id + "|"+ obj[i]['calRevenue'] + "|" + obj[i]['name']+ "|" + obj[i]['uptimes']+ "|" + obj[i]['status'] + "\n";
+		description += i + " = " + obj[i]['objectId'] + "|"+ obj[i]['calRevenue'] + "|" + obj[i]['name']+ "|" + obj[i]['uptimes']+ "|" + obj[i]['status'] + "\n";
 	}
 	console.log(description)
 }
