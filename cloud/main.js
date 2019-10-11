@@ -357,6 +357,10 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 					if(worktime){
 						let time_span = worktime.split('|')
 						is_working_time = time_range(time_span[0],time_span[1])
+						if(user.get('worknight') == true){
+							is_working_time = time_range(time_span[0],'24:00') || time_range('00:00',time_span[1])
+							console.log('worknight is working time?: ' + is_working_time)
+						}
 						//帮忘记打卡的员工自动下班
 						if(status === true && !is_working_time){
 							if(time_range_is_over_four_hour(time_span[1])){
