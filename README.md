@@ -7,6 +7,8 @@ git add -A && git commit -m "update " && git push
 git pull && docker restart 9d64ce220178 && docker logs 9d64ce220178
 git pull && docker exec -i 2e9e8cbc2203 nginx -s reload
 
+rm -rf dist && yarn build &&cp -r dist/* /Users/winfan/gitworkplace/docker-compose-parse-server/www/worker
+
 s6IAWhAv4X
 
 ```
