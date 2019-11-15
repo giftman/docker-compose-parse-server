@@ -498,7 +498,7 @@ if(req.user){
 	  	await req.user.save({'status':false},{useMasterKey:true})
 	}else{
 		let uptimes_dict = req.user.get('uptimes') || {}
-		let day = new Date().getDate()
+		let day = req.object.get('time').getDate()
 		if(!uptimes_dict[day]){
 			uptimes_dict[day] = 1
 		}
