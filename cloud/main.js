@@ -221,6 +221,22 @@ Parse.Cloud.define("calRevenue", async (req,res) => {
 	}
 });
 
+var totalPage = 1
+Parse.Cloud.define("addRecord", async (req,res) => {
+	var url = 'http://yun.kqapi.com' + '/Api/Api/recordlog'
+	var params = {}
+	params['account'] = '42f9c3daee78a0ced9c5ad8f446a7c85'
+	params['requesttime'] = new Date().getTime()
+	params = sign(params)
+	var result =  await Parse.Cloud.httpRequest({
+	  url: url,
+	  params:params
+	})
+	totalPage = 2
+	console.log(totalPage)
+
+});
+
 Parse.Cloud.job("createRatoRevenue", async (req,res) => {
     var user = new Parse.User();
     user.id = '08haeUpjaY'
@@ -799,4 +815,24 @@ var nowYear = now.getYear(); //当前年
 
 var monthStartDate = new Date(nowYear, nowMonth, 1);
 return monthStartDate;
+}
+
+
+function sign(params){
+	var _signString = ""
+	Object.keys(params).sort().forEach(function(key) {
+	  _signString = _signString + key + "=" + params[key]
+	});
+	console.log('before' + _signString)
+	params['sign'] = md5Hash(_signString)
+	console.log('after' + _signString)
+	return params
+}
+
+function md5Hash(string: string): string {
+  import { createHash } from 'crypto';
+
+  return createHash('md5')
+    .update(string)
+    .digest('hex');
 }
