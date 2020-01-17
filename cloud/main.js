@@ -829,10 +829,10 @@ function sign(params){
 	return params
 }
 
-function md5Hash(string: string): string {
+function md5Hash(str) {
   import { createHash } from 'crypto';
 
   return createHash('md5')
-    .update(string)
+    .update(str)
     .digest('hex');
 }
