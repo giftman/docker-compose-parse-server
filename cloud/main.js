@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 Parse.Cloud.define('hello', function(req, res) {
   return {
 		"code": 200,
@@ -222,7 +224,7 @@ Parse.Cloud.define("calRevenue", async (req,res) => {
 });
 
 var totalPage = 1
-Parse.Cloud.define("addRecord", async (req,res) => {
+Parse.Cloud.job("addRecord", async (req,res) => {
 	var url = 'http://yun.kqapi.com' + '/Api/Api/recordlog'
 	var params = {}
 	params['account'] = '42f9c3daee78a0ced9c5ad8f446a7c85'
@@ -830,9 +832,8 @@ function sign(params){
 }
 
 function md5Hash(str) {
-  import { createHash } from 'crypto';
 
-  return createHash('md5')
+  return crypto.createHash('md5')
     .update(str)
     .digest('hex');
 }
