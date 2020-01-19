@@ -253,7 +253,7 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	for(var i=0;i < kqapiRecords.length;i++){
 		console.log(kqapiRecords[i])
 		//不存在就写入
-		if(!monthRecords[kqapiRecords[i].atten_id])
+		if(!monthRecords[kqapiRecords[i].atten_id]){
 			let user = kqUser[kqapiRecords[i].atten_id]
 			let ti = new Date(parseInt(kqapiRecords[i].atten_time))
 			let record = new Record()
@@ -266,6 +266,8 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
 			// sleep(1000);
+		}
+			
 	}
 
 
