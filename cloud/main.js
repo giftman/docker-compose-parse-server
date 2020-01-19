@@ -262,7 +262,9 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 				'action':true,
 				'time':ti,
 				'timeString':formatDate(ti),
-				'day':ti.getDate()+""
+				'day':ti.getDate()+"",
+				'atten_id':kqapiRecords[i].atten_id,
+				'atten_uid':kqapiRecords[i].atten_uid,
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
 			// sleep(1000);
