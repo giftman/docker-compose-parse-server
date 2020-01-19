@@ -232,7 +232,10 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	params['requesttime'] = (new Date().getTime()/1000).toFixed(0)
 	params['start'] = '2020-01-16' 
 	params['end'] = '2020-01-16' 
-	params['page'] = '1' 
+	if(curPage < totalPage){
+		curPage += 1
+	}
+	params['page'] = curPage 
 	params = sign(params)
 	console.log(params)
 	var result =  await Parse.Cloud.httpRequest({
@@ -241,23 +244,30 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	})
 	var j = JSON.parse(result)
 	totalPage = parseInt(j.data.total)
+	
 	var kqapiRecords = j.data.attendata
-    	var Record = Parse.Object.extend("Record");
+	var Record = Parse.Object.extend("Record");
+	const monthRecords = await getRecordDict()
+	const kqUser = await getKQUsersDict()
 	
 	for(var i=0;i < kqapiRecords.length;i++){
 		console.log(kqapiRecords[i])
+		//不存在就写入
+		if(!monthRecords[kqapiRecords[i].atten_id])
+			let user = kqUser[kqapiRecords[i].atten_id]
+			let ti = new Date(parseInt(kqapiRecords[i].atten_time))
 			let record = new Record()
 			await record.save({
-				'parent':results[i],
+				'parent':user,
 				'action':true,
-				'time':new Date(upString.replace('day',day)),
-				'timeString':'测试09:30',
-				'day':j+""
+				'time':ti,
+				'timeString':formatDate(ti),
+				'day':ti.getDate()+""
 			},{useMasterKey: true})
 			//怕服务器受不了加个延时
-			sleep(1000);
-		}
+			// sleep(1000);
 	}
+
 
 });
 
@@ -624,6 +634,21 @@ async function getRevenueDict(){
 	return revenueDict
 }
 
+async function getRecordDict(){
+	let recordDict = {}
+
+	var Record = Parse.Object.extend("Record");
+	let newRecord = new Record()
+    let record_query = new Parse.Query(newRecord);
+	record_query.equalTo("month", getMonthTime());
+	let records = await record_query.find({useMasterKey: true})
+
+	for(let record of records){
+		recordDict[record.get('atten_id')] = record
+	}
+	return recordDict
+}
+
 async function getJobDict(){
 	let jobDict = {}
 	var Vocation = Parse.Object.extend("Vocation");
@@ -643,6 +668,18 @@ async function getAllUsersDict(){
 
 	for(let user of allUser){
 		userDict[user.id] = user
+	}
+
+	return userDict
+}
+
+async function getKQUsersDict(){
+	const allUser = await getAllUsers()
+
+	let userDict = {}
+
+	for(let user of allUser){
+		userDict[user.get('atten_uid')] = user
 	}
 
 	return userDict
@@ -839,6 +876,19 @@ var nowYear = now.getYear(); //当前年
 
 var monthStartDate = new Date(nowYear, nowMonth, 1);
 return monthStartDate;
+}
+
+//获得本月的开端日期时间
+function formatDate(date){
+	var hours = padDate(date.getHours());
+    var minutes = padDate(date.getMinutes());
+    var seconds = padDate(date.getSeconds());
+    //整理数据并返回
+    return hours+':'+minutes+':'+seconds;
+}
+
+function padDate(value){
+	return value<10?'0'+value:value;
 }
 
 
