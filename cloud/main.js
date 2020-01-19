@@ -224,18 +224,40 @@ Parse.Cloud.define("calRevenue", async (req,res) => {
 });
 
 var totalPage = 1
+var curPage = 0
 Parse.Cloud.job("addRecord", async (req,res) => {
 	var url = 'http://yun.kqapi.com' + '/Api/Api/recordlog'
 	var params = {}
 	params['account'] = '42f9c3daee78a0ced9c5ad8f446a7c85'
-	params['requesttime'] = new Date().getTime()
+	params['requesttime'] = (new Date().getTime()/1000).toFixed(0)
+	params['start'] = '2020-01-16' 
+	params['end'] = '2020-01-16' 
+	params['page'] = '1' 
 	params = sign(params)
+	console.log(params)
 	var result =  await Parse.Cloud.httpRequest({
 	  url: url,
 	  params:params
 	})
-	totalPage = 2
-	console.log(totalPage)
+	var j = JSON.parse(result)
+	totalPage = parseInt(j.data.total)
+	var kqapiRecords = j.data.attendata
+    	var Record = Parse.Object.extend("Record");
+	
+	for(var i=0;i < kqapiRecords.length;i++){
+		console.log(kqapiRecords[i])
+			let record = new Record()
+			await record.save({
+				'parent':results[i],
+				'action':true,
+				'time':new Date(upString.replace('day',day)),
+				'timeString':'测试09:30',
+				'day':j+""
+			},{useMasterKey: true})
+			//怕服务器受不了加个延时
+			sleep(1000);
+		}
+	}
 
 });
 
@@ -823,11 +845,10 @@ return monthStartDate;
 function sign(params){
 	var _signString = ""
 	Object.keys(params).sort().forEach(function(key) {
-	  _signString = _signString + key + "=" + params[key]
+	  _signString = _signString + params[key] 
 	});
-	console.log('before' + _signString)
+	_signString = _signString + "ygz123"
 	params['sign'] = md5Hash(_signString)
-	console.log('after' + _signString)
 	return params
 }
 
