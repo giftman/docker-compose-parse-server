@@ -289,7 +289,7 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 					if(!uptimes_dict[day]){
 						uptimes_dict[day] = 1
 					}
-					  await req.user.save({'status':true,'uptimes':uptimes_dict},{useMasterKey:true})
+					  await user.save({'status':true,'uptimes':uptimes_dict},{useMasterKey:true})
 				}
 			}
 			//怕服务器受不了加个延时
