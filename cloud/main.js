@@ -277,6 +277,21 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 				'atten_id':kqapiRecords[i].atten_id,
 				'atten_uid':kqapiRecords[i].atten_uid,
 			},{useMasterKey: true})
+
+			//更新用户状态
+			if(user){
+				if(!status){
+					//全部算完把上班状态改掉
+					await user.save({'status':false},{useMasterKey:true})
+				}else{
+					let uptimes_dict = user.get('uptimes') || {}
+					let day = ti.getDate()
+					if(!uptimes_dict[day]){
+						uptimes_dict[day] = 1
+					}
+					  await req.user.save({'status':true,'uptimes':uptimes_dict},{useMasterKey:true})
+				}
+			}
 			//怕服务器受不了加个延时
 			// sleep(1000);
 		}
@@ -555,21 +570,21 @@ function sleep(delay) {
 }
 
 Parse.Cloud.afterSave("Record", async (req) => {
-if(req.user){
+// if(req.user){
 
 	
-	if(!req.object.get('action')){
-		//全部算完把上班状态改掉
-	  	await req.user.save({'status':false},{useMasterKey:true})
-	}else{
-		let uptimes_dict = req.user.get('uptimes') || {}
-		let day = req.object.get('time').getDate()
-		if(!uptimes_dict[day]){
-			uptimes_dict[day] = 1
-		}
-	  	await req.user.save({'status':true,'uptimes':uptimes_dict},{useMasterKey:true})
-	}
-}
+// 	if(!req.object.get('action')){
+// 		//全部算完把上班状态改掉
+// 	  	await req.user.save({'status':false},{useMasterKey:true})
+// 	}else{
+// 		let uptimes_dict = req.user.get('uptimes') || {}
+// 		let day = req.object.get('time').getDate()
+// 		if(!uptimes_dict[day]){
+// 			uptimes_dict[day] = 1
+// 		}
+// 	  	await req.user.save({'status':true,'uptimes':uptimes_dict},{useMasterKey:true})
+// 	}
+// }
 });
 
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
