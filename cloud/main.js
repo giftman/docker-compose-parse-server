@@ -237,12 +237,12 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	}
 	params['page'] = curPage 
 	params = sign(params)
-	console.log(params)
 	var result =  await Parse.Cloud.httpRequest({
 	  url: url,
 	  params:params
 	})
-	var j = JSON.parse(result)
+
+	var j = JSON.parse(result.text)
 	totalPage = parseInt(j.data.total)
 	
 	var kqapiRecords = j.data.attendata
@@ -251,15 +251,26 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	const kqUser = await getKQUsersDict()
 	
 	for(var i=0;i < kqapiRecords.length;i++){
-		console.log(kqapiRecords[i])
 		//不存在就写入
-		if(!monthRecords[kqapiRecords[i].atten_id]){
-			let user = kqUser[kqapiRecords[i].atten_id]
-			let ti = new Date(parseInt(kqapiRecords[i].atten_time))
+		if(monthRecords[kqapiRecords[i].atten_id] == null){
+			let user = kqUser[kqapiRecords[i].atten_uid]
+			console.log(kqapiRecords[i])
+			let ti = new Date(parseInt(kqapiRecords[i].atten_time + "000"))
+			let status = user.get('status') || true
+			let lastRecord = await getLastRecord(user)
+			console.log('lastRecord')
+			console.log(lastRecord)
+			if(lastRecord){
+			   var timePass = ti - lastRecord.get('time') 
+			   //相差五分钟打卡状态会改变
+			   if(Math.abs(timePass) > 1000*60*5){
+			   	status = !status	
+			   } 
+			}
 			let record = new Record()
 			await record.save({
 				'parent':user,
-				'action':true,
+				'action':status,
 				'time':ti,
 				'timeString':formatDate(ti),
 				'day':ti.getDate()+"",
@@ -643,14 +654,26 @@ async function getRecordDict(){
 
 	var Record = Parse.Object.extend("Record");
 	let newRecord = new Record()
-    let record_query = new Parse.Query(newRecord);
-	record_query.equalTo("month", getMonthTime());
+    	let record_query = new Parse.Query(newRecord);
+	record_query.greaterThan("time", getMonthStartDate());
 	let records = await record_query.find({useMasterKey: true})
 
 	for(let record of records){
 		recordDict[record.get('atten_id')] = record
 	}
 	return recordDict
+}
+async function getLastRecord(user){
+	let recordDict = {}
+
+	var Record = Parse.Object.extend("Record");
+	let newRecord = new Record()
+    	let record_query = new Parse.Query(newRecord);
+	record_query.greaterThan("time", getMonthStartDate());
+	record_query.equalTo("parent", user);
+	let record = await record_query.first({useMasterKey: true})
+
+	return record
 }
 
 async function getJobDict(){
