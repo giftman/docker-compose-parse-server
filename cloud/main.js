@@ -230,8 +230,8 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	var params = {}
 	params['account'] = '42f9c3daee78a0ced9c5ad8f446a7c85'
 	params['requesttime'] = (new Date().getTime()/1000).toFixed(0)
-	params['start'] = '2020-01-16' 
-	params['end'] = '2020-01-16' 
+	// params['start'] = '2020-01-16' 
+	// params['end'] = '2020-01-16' 
 	if(curPage < totalPage){
 		curPage += 1
 	}
