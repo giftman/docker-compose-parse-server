@@ -266,6 +266,8 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 			   if(Math.abs(timePass) > 1000*60*5){
 			   	status = !status	
 			   } 
+			}else{
+				status = true
 			}
 			let record = new Record()
 			await record.save({
