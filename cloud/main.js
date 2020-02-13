@@ -230,7 +230,7 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	var params = {}
 	params['account'] = '42f9c3daee78a0ced9c5ad8f446a7c85'
 	params['requesttime'] = (new Date().getTime()/1000).toFixed(0)
-	// params['start'] = '2020-01-16' 
+	//params['start'] = '2020-02-07' 
 	// params['end'] = '2020-01-16' 
 	if(curPage < totalPage){
 		curPage += 1
@@ -243,20 +243,25 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	})
 
 	var j = JSON.parse(result.text)
-	totalPage = parseInt(j.data.total)
+	totalPage = parseInt(j.data.totalpage)
+	if(curPage >= totalPage){
+		curPage -= 1
+	}
 	
 	var kqapiRecords = j.data.attendata
 	var Record = Parse.Object.extend("Record");
 	const monthRecords = await getRecordDict()
 	const kqUser = await getKQUsersDict()
 	
-	for(var i=0;i < kqapiRecords.length;i++){
+	for(var i=(kqapiRecords.length - 1);i >= 0;i--){
 		//不存在就写入
 		if(monthRecords[kqapiRecords[i].atten_id] == null){
-			let user = kqUser[kqapiRecords[i].atten_uid]
-			console.log(kqapiRecords[i])
+			let user = await kqUser[kqapiRecords[i].atten_uid].fetch()
 			let ti = new Date(parseInt(kqapiRecords[i].atten_time + "000"))
-			let status = user.get('status') || true
+			let status = user.get('status')
+			console.log('user status')
+			console.log(user)
+			console.log(status)
 			let lastRecord = await getLastRecord(user)
 			console.log('lastRecord')
 			console.log(lastRecord)
@@ -270,6 +275,8 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 				status = true
 			}
 			let record = new Record()
+			console.log('record status')
+			console.log(status)
 			await record.save({
 				'parent':user,
 				'action':status,
@@ -688,6 +695,7 @@ async function getLastRecord(user){
     	let record_query = new Parse.Query(newRecord);
 	record_query.greaterThan("time", getMonthStartDate());
 	record_query.equalTo("parent", user);
+	record_query.descending("time");
 	let record = await record_query.first({useMasterKey: true})
 
 	return record
@@ -843,7 +851,6 @@ async function saveRato(user,jobRevenue){
 			if(result.length === 1){
 				let revenue_list = result[0].get('hourRevenue') || {}
 				revenue_list[userId] = jobRevenue
-				// newRevenue.set('hourRevenue',revenue_list)
 				await result[0].save({'hourRevenue':revenue_list},{useMasterKey:true})
 			}else{
 				while(result.length){
