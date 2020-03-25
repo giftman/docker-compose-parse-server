@@ -11,4 +11,6 @@ rm -rf dist && yarn build &&cp -r dist/* /Users/winfan/gitworkplace/docker-compo
  git pull && docker stop 7804fd3a4ff1 && docker start 7804fd3a4ff1 && docker exec -i 476e621f1f46 nginx -s reload
 s6IAWhAv4X
 
+git pull && docker stop docker-compose-parse-server_parse_1 && docker start docker-compose-parse-server_parse_1
+
 ```
