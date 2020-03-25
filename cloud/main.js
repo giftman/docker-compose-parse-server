@@ -790,9 +790,12 @@ function time_range_is_over_four_hour(endTime) {
      }
      var e = new Date ();
      var n = new Date ();
-
+	 
      e.setHours (stre[0]);
-     e.setMinutes (stre[1]);
+	 e.setMinutes (stre[1]);
+	 if(stre[0] == "24"){
+		 e.setHours(0)
+	 }
      //过半小时自动下班
      if (n.getTime () - e.getTime () - 1000*60*60/2 > 0) {
          return true;
