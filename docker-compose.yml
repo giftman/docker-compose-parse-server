@@ -6,6 +6,7 @@ services:
       - './data/db:/data/db'
     ports:
       - 27017:27017
+    restart: always
   parse:
     image: 'parseplatform/parse-server:latest'
     volumes:
@@ -23,6 +24,7 @@ services:
       - '1337:1337'
     links:
       - mongo
+    restart: always
   parse-dashboard:
     image: 'parseplatform/parse-dashboard'
     ports:
@@ -62,5 +64,6 @@ services:
       - parse-dashboard
       - parse
       - portainer
+    restart: always
 volumes:
   portainer_data:

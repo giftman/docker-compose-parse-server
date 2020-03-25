@@ -90,9 +90,6 @@ Parse.Cloud.define("changePassword", async (req,res) => {
 	}
 
 	let user = await req.user.fetch()
-	console.log(user)
-	console.log(user.get('password'))
-	console.log(req.params)
 	user.setPassword(req.params.newPassWord);
 	await user.save(null,{useMasterKey:true})
 	return 1
@@ -255,16 +252,14 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 	
 	for(var i=(kqapiRecords.length - 1);i >= 0;i--){
 		//不存在就写入
-		if(monthRecords[kqapiRecords[i].atten_id] == null){
+		if(typeof(monthRecords[kqapiRecords[i].atten_id])=="undefined"){
+			if(typeof(kqUser[kqapiRecords[i].atten_uid])=="undefined"){
+			  continue
+			}
 			let user = await kqUser[kqapiRecords[i].atten_uid].fetch()
 			let ti = new Date(parseInt(kqapiRecords[i].atten_time + "000"))
 			let status = user.get('status')
-			console.log('user status')
-			console.log(user)
-			console.log(status)
 			let lastRecord = await getLastRecord(user)
-			console.log('lastRecord')
-			console.log(lastRecord)
 			if(lastRecord){
 			   var timePass = ti - lastRecord.get('time') 
 			   //相差五分钟打卡状态会改变
@@ -275,8 +270,6 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 				status = true
 			}
 			let record = new Record()
-			console.log('record status')
-			console.log(status)
 			await record.save({
 				'parent':user,
 				'action':status,
@@ -289,6 +282,8 @@ Parse.Cloud.job("addRecord", async (req,res) => {
 
 			//更新用户状态
 			if(user){
+				console.log('update user status')
+				console.log(status)
 				if(!status){
 					//全部算完把上班状态改掉
 					await user.save({'status':false},{useMasterKey:true})
@@ -322,6 +317,9 @@ Parse.Cloud.define("createRatoRevenue", async (req,res) => {
 });
 
 Parse.Cloud.job("everydayResetNum", async (req,res) => {
+	
+	totalPage = 1
+	curPage = 0
 	let reports = await getAllReportDict()
 	//每天凌晨开始重算每天收益
     for(let r in reports){
@@ -339,7 +337,6 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
     let _leiji = 0
 	const results = await allRevenue.find({useMasterKey: true})
 	for(var i=0;i < results.length;i++){
-		// console.log(results[i])
 		//Todo累计是加上一个月的比较方便
 		let _month = results[i].get('monthTotal') || 0
 		var lastMonth = new Parse.Query(Revenue)
@@ -361,7 +358,7 @@ Parse.Cloud.job("everydayResetNum", async (req,res) => {
 		} 
 		await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
 	}
-	console.log('everydayResetNum End')
+	
 });
 Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
 	let reports = await getAllReportDict()
@@ -380,7 +377,6 @@ Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
     allRevenue.equalTo("month", getMonthTime());
     let _leiji = 0
 	const results = await allRevenue.find({useMasterKey: true})
-	console.log('result.length : ' + results.length)
 	for(var i=0;i < results.length;i++){
 		// console.log(results[i])
 		//Todo累计是加上一个月的比较方便
@@ -403,12 +399,11 @@ Parse.Cloud.job("everydayResetNotSaveTest", async (req,res) => {
 				_list[l].dayRevenue  = 0
 			}
 		} 
-		console.log('total: ' + _leiji)
-		console.log('parent: ' + results[i].get('parent').id)
+		//console.log('total: ' + _leiji)
 		outputObj(_list)
 		//await results[i].save({total:_leiji,today:'0',list:_list},{useMasterKey: true})
 	}
-	console.log('everydayResetTestNum End')
+	//console.log('everydayResetTestNum End')
 });
 
 Parse.Cloud.job("everyMonthReset", async (req,res) => {
@@ -448,7 +443,6 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						is_working_time = time_range(time_span[0],time_span[1])
 						if(user.get('worknight') == true){
 							is_working_time = time_range(time_span[0],'24:00') || time_range('00:00',time_span[1])
-							console.log('worknight is working time?: ' + is_working_time)
 						}
 						//帮忘记打卡的员工自动下班
 						if(status === true && !is_working_time){
@@ -543,7 +537,7 @@ Parse.Cloud.job("updateReportWorkTimeOneMinute", async (req,res) => {
 						}
 					}
 				} catch (error) {
-					console.log('now is :' + user.id)
+					//console.log('now is :' + user.id)
 					console.log(error.message)
 				}
 			}
@@ -597,7 +591,7 @@ Parse.Cloud.afterSave("Record", async (req) => {
 });
 
 Parse.Cloud.beforeSave(Parse.User, async (req) => {
-  console.log('beforeSave User')
+  //console.log('beforeSave User')
   const _user = req.object
   // console.log(req.object)
   const userId = req.object.get('idcard')
@@ -619,7 +613,7 @@ Parse.Cloud.beforeSave(Parse.User, async (req) => {
 	}catch(e){
 		console.log(e.message)
 	}
- console.log('End beforeSave User')
+ //console.log('End beforeSave User')
   
 });
 
